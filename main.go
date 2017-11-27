@@ -13,9 +13,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/LadyDascalie/doggoapi/commands/generators/modelgen/sqlfmt"
-	"bitbucket.org/LadyDascalie/doggoapi/commands/generators/modelgen/sqltypes"
-	"bitbucket.org/LadyDascalie/doggoapi/commands/generators/modelgen/tmpl"
+	"github.com/LUSHDigital/modelgen/sqlfmt"
+	"github.com/LUSHDigital/modelgen/sqltypes"
+	"github.com/LUSHDigital/modelgen/tmpl"
 	_ "github.com/go-sql-driver/mysql"
 )
 
