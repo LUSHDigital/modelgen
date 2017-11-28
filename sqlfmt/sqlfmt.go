@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-var accronyms = [...]string{
+var acronyms = [...]string{
 	"amd",     // Advanced Micro Devices
 	"api",     // application programming interface
 	"arp",     // address resolution protocol
@@ -271,9 +271,9 @@ var accronyms = [...]string{
 	"xml", // extensible markup language
 }
 
-// ShouldCap defines if the accronym should be capitalized
+// ShouldCap defines if the acronym should be capitalized
 func ShouldCap(word string) string {
-	for _, acc := range accronyms {
+	for _, acc := range acronyms {
 		if strings.ToLower(word) == acc {
 			return strings.ToUpper(word)
 		}
