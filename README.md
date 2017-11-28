@@ -8,6 +8,8 @@ ModelGen generates working database interaction code from reading your MySQL / M
 
 ```
 Usage of modelgen:
+  -d string
+      name of database
   -dsn string
     	root:@tcp(localhost:3306)/database_name?parseTime=true
   -o string
@@ -17,6 +19,6 @@ Usage of modelgen:
     	
     	
 Example:
-modelgen -o models -dsn user:pass@tcp(localhost:3306)/databaseName?parseTime=true
+modelgen -d databaseName -o models -dsn user:pass@tcp(localhost:3306)/databaseName?parseTime=true
 ```
 

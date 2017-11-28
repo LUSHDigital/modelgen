@@ -29,6 +29,7 @@ func init() {
 
 var outputPath = flag.String("o", "generated_models", "path to package")
 var packageName = flag.String("p", "models", "name for generated package")
+var databaseName = flag.String("d", "", "name of database")
 var dsn = flag.String("dsn", "", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", "root", "", "localhost", 3306, "database_name"))
 
 func main() {
@@ -36,6 +37,9 @@ func main() {
 
 	if *dsn == "" {
 		log.Fatal("Empty dsn provided")
+	}
+	if *databaseName == "" {
+		log.Fatal("Empty database name")
 	}
 
 	var err error
@@ -109,11 +113,12 @@ func writeModel(model tmpl.TmplStruct, t *template.Template) {
 
 func getTables() (tables []string) {
 	const stmt = `SELECT table_name
-		FROM information_schema.columns AS c
-		WHERE c.column_key = "PRI"
-      			AND column_name = "id"`
+				  FROM information_schema.columns AS c
+				  WHERE c.column_key = "PRI"
+				  AND c.table_schema = ?
+      			  AND column_name = "id"`
 
-	rows, err := database.Query(stmt)
+	rows, err := database.Query(stmt, *databaseName)
 	if err != nil {
 		log.Fatal(err)
 	}
