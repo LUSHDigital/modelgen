@@ -75,8 +75,8 @@ func main() {
 	}
 
 	// copy in helpers and test suite
-	copyFile("x_helpers.html", "x_helpers.go")
-	copyFile("x_helpers_test.html", "x_helpers_test.go")
+	copyFile("x_helpers.html", "x_helpers.go", "helpers")
+	copyFile("x_helpers_test.html", "x_helpers_test.go", "helpers_test")
 }
 
 func writeModel(model tmpl.TmplStruct, t *template.Template) {
@@ -178,9 +178,18 @@ func toStructs(tables []string) []tmpl.TmplStruct {
 	return structStore
 }
 
-func copyFile(src, dst string) {
+func copyFile(src, dst, templateName string) {
 	dbFile, err := Asset(filepath.Join("tmpl", src))
-	buf := bytes.NewBuffer(dbFile)
+
+	t := template.Must(template.New(templateName).Parse(string(dbFile)))
+	buf := new(bytes.Buffer)
+	err = t.Execute(buf, map[string]string{
+		"PackageName": *packageName,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	formatted, err := format.Source(buf.Bytes())
 	if err != nil {
 		log.Fatal(err)

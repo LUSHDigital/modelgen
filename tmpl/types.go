@@ -2,6 +2,7 @@ package tmpl
 
 // TmplStructs is a collection on TmplStruct
 type TmplStructs []TmplStruct
+
 // TmplStruct defines the table data to pass to the models
 type TmplStruct struct {
 	Name      string
