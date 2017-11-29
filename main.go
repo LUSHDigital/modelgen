@@ -76,7 +76,7 @@ func main() {
 
 	// copy in helpers and test suite
 	copyFile("x_helpers.html", "x_helpers.go", "helpers")
-	copyFile("x_helpers_test.html", "x_helpers_test.go", "helpers_test")
+	copyFile("x_helpers_test.html", "x_helpers_test.go", "helperstest")
 }
 
 func writeModel(model tmpl.TmplStruct, t *template.Template) {
