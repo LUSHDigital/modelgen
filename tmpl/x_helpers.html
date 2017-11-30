@@ -19,6 +19,10 @@ import (
 // StdTime provides default SQL TIME format
 const StdTime = "15:04:05"
 
+// emptyTime allows default times to be considered
+// null for insertion into the database.
+var emptyTime = time.Time{}
+
 /*-------------+
 | Type aliases |
 +-------------*/
@@ -326,6 +330,9 @@ return NullBool(sql.NullBool{Bool: *b, Valid: true})
 
 // ToNullTime creates a new NullTime
 func ToNullTime(t time.Time) NullTime {
+if t == emptyTime {
+return NullTime(mysql.NullTime{Valid: false})
+}
 return NullTime(mysql.NullTime{Time: t, Valid: true})
 }
 {{end}}

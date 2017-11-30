@@ -884,14 +884,23 @@ func TestToNullString(t *testing.T) {
 		t.Errorf("expected <empty string>, got %v", bb2.String)
 	}
 }
-func TestToNullTime(t *testing.T) {
-	tim := time.Now()
-	bb := ToNullTime(tim)
-	if !bb.Valid {
-		t.Errorf("expected valid, got %v", bb.Valid)
-	}
-	if bb.Time != tim {
-		t.Errorf("expected qwe, got %v", bb.Time)
-	}
-}
+    func TestToNullTime(t *testing.T) {
+    tim := time.Now()
+    bb := ToNullTime(tim)
+    if !bb.Valid {
+    t.Errorf("expected valid, got %v", bb.Valid)
+    }
+    if bb.Time != tim {
+    t.Errorf("expected %v, got %v", tim, bb.Time)
+    }
+
+    tim = time.Time{}
+    bb = ToNullTime(tim)
+    if bb.Valid {
+    t.Errorf("expected invalid, got %v", bb.Valid)
+    }
+    if bb.Time != tim {
+    t.Errorf("expected qwe, got %v", tim, bb.Time)
+    }
+    }
 {{end}}
