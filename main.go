@@ -2,11 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
 
-	"github.com/getlantern/errors"
 	"github.com/spf13/cobra"
 
 	_ "github.com/go-sql-driver/mysql"
