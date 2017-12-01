@@ -33,13 +33,17 @@ func main() {
 	conn = rootCmd.PersistentFlags().StringP("connection", "c", "", "user:pass@host:port")
 
 	generateCmd := &cobra.Command{
-		Use: "generate",
-		Run: generate,
+		Use:   "generate",
+		Run:   generate,
+		Short: "Generate models from a database connection",
+		Args:cobra.RangeArgs(2,4),
 	}
 
 	migrateCmd := &cobra.Command{
-		Use: "migrate",
-		Run: migrate,
+		Use:   "migrate",
+		Run:   migrate,
+		Short: "Generate migration files from a database connection",
+		Args:cobra.RangeArgs(2,4),
 	}
 
 	rootCmd.AddCommand(generateCmd, migrateCmd)
@@ -49,7 +53,7 @@ func main() {
 	}
 }
 
-var formatErr = errors.New("Invalid connection string format")
+var formatErr = errors.New("invalid connection string format")
 
 func mkDsn(connect, dbname string) string {
 	parts := strings.Split(connect, "@")

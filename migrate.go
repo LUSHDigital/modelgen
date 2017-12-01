@@ -43,7 +43,7 @@ func makeMigrations(tables []string, dst string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = down.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS `%s`;", tbl))
+		_, err = down.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS %s", tbl))
 		if err != nil {
 			log.Fatal(err)
 		}
