@@ -11,6 +11,7 @@ import (
 "database/sql/driver"
 "encoding/json"
 "reflect"
+"strings"
 "time"
 
 "github.com/go-sql-driver/mysql"
@@ -45,12 +46,21 @@ type NullTime mysql.NullTime
 // RawJSON aliases json.RawMessage
 type RawJSON json.RawMessage
 
-/*--------------------------    -+
+/*---------------------------+
 | NullString implementations |
 +---------------------------*/
 
+// MarshalJSON for NullString
+func (n NullString) MarshalJSON() ([]byte, error) {
+var a *string
+if n.Valid {
+a = &n.String
+}
+return json.Marshal(a)
+}
+
 // UnmarshalJSON for NullString
-func (n NullString) UnmarshalJSON(b []byte) error {
+func (n *NullString) UnmarshalJSON(b []byte) error {
 err := json.Unmarshal(b, &n.String)
 n.Valid = err == nil
 return err
@@ -77,33 +87,32 @@ n.Valid = true
 return nil
 }
 
-// MarshalJSON for NullString
-func (n *NullString) MarshalJSON() ([]byte, error) {
-var a *string
+/*----------------------------+
+| NullFloat64 implementations |
++----------------------------*/
+
+// MarshalJSON for NullFloat64
+func (n NullFloat64) MarshalJSON() ([]byte, error) {
+var a *float64
 if n.Valid {
-a = &n.String
+a = &n.Float64
 }
 return json.Marshal(a)
 }
 
-/*----------------------------+
-| NullFloat64 implementations |
-+----------------------------*/
+// Value for NullFloat64
+func (n NullFloat64) Value() (driver.Value, error) {
+if !n.Valid {
+return nil, nil
+}
+return n.Float64, nil
+}
 
 // UnmarshalJSON for NullFloat64
 func (n *NullFloat64) UnmarshalJSON(b []byte) error {
 err := json.Unmarshal(b, &n.Float64)
 n.Valid = err == nil
 return err
-}
-
-// MarshalJSON for NullFloat64
-func (n *NullFloat64) MarshalJSON() ([]byte, error) {
-var a *float64
-if n.Valid {
-a = &n.Float64
-}
-return json.Marshal(a)
 }
 
 // Scan for NullFloat64
@@ -119,23 +128,17 @@ n.Valid = true
 return nil
 }
 
-// Value for NullFloat64
-func (n NullFloat64) Value() (driver.Value, error) {
-if !n.Valid {
-return nil, nil
-}
-return n.Float64, nil
-}
-
 /*--------------------------+
 | NullInt64 implementations |
 +--------------------------*/
 
-// UnmarshalJSON for NullInt64
-func (n NullInt64) UnmarshalJSON(b []byte) error {
-err := json.Unmarshal(b, &n.Int64)
-n.Valid = err == nil
-return err
+// MarshalJSON for NullInt64
+func (n NullInt64) MarshalJSON() ([]byte, error) {
+var a *int64
+if n.Valid {
+a = &n.Int64
+}
+return json.Marshal(a)
 }
 
 // Value for NullInt64
@@ -144,6 +147,13 @@ if !n.Valid {
 return nil, nil
 }
 return n.Int64, nil
+}
+
+// UnmarshalJSON for NullInt64
+func (n *NullInt64) UnmarshalJSON(b []byte) error {
+err := json.Unmarshal(b, &n.Int64)
+n.Valid = err == nil
+return err
 }
 
 // Scan for NullInt64
@@ -159,24 +169,17 @@ n.Valid = true
 return nil
 }
 
-// MarshalJSON for NullInt64
-func (n *NullInt64) MarshalJSON() ([]byte, error) {
-var a *int64
-if n.Valid {
-a = &n.Int64
-}
-return json.Marshal(a)
-}
-
 /*-------------------------+
 | NullBool implementations |
 +-------------------------*/
 
-// UnmarshalJSON for NullBool
-func (n *NullBool) UnmarshalJSON(b []byte) error {
-err := json.Unmarshal(b, &n.Bool)
-n.Valid = err == nil
-return err
+// MarshalJSON for NullBool
+func (n NullBool) MarshalJSON() ([]byte, error) {
+var a *bool
+if n.Valid {
+a = &n.Bool
+}
+return json.Marshal(a)
 }
 
 // Value for NullBool
@@ -185,6 +188,13 @@ if !n.Valid {
 return nil, nil
 }
 return n.Bool, nil
+}
+
+// UnmarshalJSON for NullBool
+func (n *NullBool) UnmarshalJSON(b []byte) error {
+err := json.Unmarshal(b, &n.Bool)
+n.Valid = err == nil
+return err
 }
 
 // Scan for NullBool
@@ -200,22 +210,31 @@ n.Valid = true
 return nil
 }
 
-// MarshalJSON for NullBool
-func (n *NullBool) MarshalJSON() ([]byte, error) {
-var a *bool
-if n.Valid {
-a = &n.Bool
-}
-return json.Marshal(a)
-}
-
 /*-------------------------+
 | NullTime implementations |
 +-------------------------*/
 
+// MarshalJSON for NullTime
+func (n NullTime) MarshalJSON() ([]byte, error) {
+var a *time.Time
+if n.Valid {
+a = &n.Time
+}
+return json.Marshal(a)
+}
+
+// Value for NullTime
+func (n NullTime) Value() (driver.Value, error) {
+if !n.Valid {
+return nil, nil
+}
+return n.Time, nil
+}
+
 // UnmarshalJSON for NullTime
-func (n NullTime) UnmarshalJSON(b []byte) error {
+func (n *NullTime) UnmarshalJSON(b []byte) error {
 s := string(b)
+s = strings.Trim(s, `"`)
 tim, err := time.Parse(time.RFC3339, s)
 if err != nil {
 n.Valid = false
@@ -225,14 +244,6 @@ return err
 n.Time = tim
 n.Valid = true
 return nil
-}
-
-// Value for NullTime
-func (n NullTime) Value() (driver.Value, error) {
-if !n.Valid {
-return nil, nil
-}
-return n.Time, nil
 }
 
 // Scan for NullTime
@@ -248,18 +259,20 @@ n.Valid = true
 return nil
 }
 
-// MarshalJSON for NullTime
-func (n *NullTime) MarshalJSON() ([]byte, error) {
-var a *time.Time
-if n.Valid {
-a = &n.Time
-}
-return json.Marshal(a)
-}
-
 /*------------------------+
 | RawJSON implementations |
 +------------------------*/
+
+// MarshalJSON for NullString
+func (n RawJSON) MarshalJSON() ([]byte, error) {
+a := json.RawMessage(n)
+return a.MarshalJSON()
+}
+
+// Value for NullString
+func (n RawJSON) Value() (driver.Value, error) {
+return string(n), nil
+}
 
 // UnmarshalJSON for NullString
 func (n *RawJSON) UnmarshalJSON(b []byte) error {
@@ -268,11 +281,6 @@ json.Unmarshal(b, &a)
 c := RawJSON(a)
 *n = c
 return nil
-}
-
-// Value for NullString
-func (n RawJSON) Value() (driver.Value, error) {
-return string(n), nil
 }
 
 // Scan for NullString
@@ -284,12 +292,6 @@ return err
 jsn := RawJSON([]byte(a.String))
 *n = jsn
 return nil
-}
-
-// MarshalJSON for NullString
-func (n *RawJSON) MarshalJSON() ([]byte, error) {
-a := json.RawMessage(*n)
-return a.MarshalJSON()
 }
 
 /*-----------------+
