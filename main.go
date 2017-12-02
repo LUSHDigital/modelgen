@@ -36,14 +36,12 @@ func main() {
 		Use:   "generate",
 		Run:   generate,
 		Short: "Generate models from a database connection",
-		Args:cobra.RangeArgs(2,4),
 	}
 
 	migrateCmd := &cobra.Command{
 		Use:   "migrate",
 		Run:   migrate,
 		Short: "Generate migration files from a database connection",
-		Args:cobra.RangeArgs(2,4),
 	}
 
 	rootCmd.AddCommand(generateCmd, migrateCmd)
