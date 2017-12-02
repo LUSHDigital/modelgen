@@ -30,7 +30,12 @@ Flags:
   -p, --package string      name of package (default "generated_models")
     	
 Example:
-modelgen -c root:pass@localhost:3306 -d my-db -o models generate
+
+# Create models
+modelgen generate -c root:pass@localhost:3306 -d my-db -o models
+
+# Create migrations
+modelgen migrate -c root:pass@localhost:3306 -d my-db -o migrations
 ```
 
 ## Visual Aid:
