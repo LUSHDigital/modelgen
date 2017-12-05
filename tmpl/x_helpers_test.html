@@ -11,8 +11,6 @@ import (
 "reflect"
 "testing"
 "time"
-
-"github.com/davecgh/go-spew/spew"
 )
 
 func TestStructEmbedding(t *testing.T) {
@@ -50,7 +48,6 @@ if err := json.Unmarshal(expected, &em2); err != nil {
 t.Fatal(err)
 }
 if !reflect.DeepEqual(em2, em) {
-spew.Dump(em2, em)
 t.Fatal("not correct")
 }
 }
