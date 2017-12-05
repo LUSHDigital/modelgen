@@ -44,6 +44,17 @@ func ({{.Receiver}} *{{.Model.Name}}) Update(db *sql.DB, id int64) error {
     return err
 }
 
+// Upsert inserts a new {{.Model.Name}} row in the {{.Model.TableName}} table
+// if the unique constraints are not found, otherwise it updates it.
+func ({{.Receiver}} *{{.Model.Name}}) Upsert(db *sql.DB) (lastInsertID int64, err error) {
+    const stmt = "INSERT INTO {{.Model.TableName}} ({{.Model.Fields | insert_fields}}) VALUES ({{.Model.Fields | insert_values}}) ON DUPLICATE KEY UPDATE {{ . | upsert_values }}"
+    res, err := db.Exec(stmt, {{ . | insert_args }})
+    if err != nil {
+        return 0, err
+    }
+    return res.LastInsertId()
+}
+
 // Find an existing {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Find(db *sql.DB, id int64) error {
     const stmt = "SELECT * FROM {{.Model.TableName}} WHERE id = ?"
