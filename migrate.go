@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,6 +19,7 @@ func migrate(cmd *cobra.Command, args []string) {
 	makeMigrations(tables, *output)
 }
 
+var autoincrementRegExp = regexp.MustCompile(`(?ms) AUTO_INCREMENT=[0-9]*\b`)
 func makeMigrations(tables []string, dst string) {
 	os.Mkdir(dst, 0777)
 	for _, table := range tables {
@@ -33,7 +36,9 @@ func makeMigrations(tables []string, dst string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = up.WriteString(stmt)
+		auto := autoincrementRegExp.FindString(stmt)
+		stmt = strings.Replace(stmt, auto, "", 1)
+		_, err = up.WriteString(stmt+";")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -43,7 +48,7 @@ func makeMigrations(tables []string, dst string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = down.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS %s", tbl))
+		_, err = down.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS %s;", tbl))
 		if err != nil {
 			log.Fatal(err)
 		}
