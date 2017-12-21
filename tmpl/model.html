@@ -122,10 +122,7 @@ func({{.Receiver}} *{{.Model.Name}}) Exists(db *sql.DB, id int64) (exists bool, 
     if err = row.Scan(&i); err != nil {
         return
     }
-    if i > 0 {
-        return true, nil
-    }
-    return false, nil
+    return i > 0, nil
 }
 
 // TableName returns the table name
