@@ -21,7 +21,22 @@ func migrate(cmd *cobra.Command, args []string) {
 
 var autoincrementRegExp = regexp.MustCompile(`(?ms) AUTO_INCREMENT=[0-9]*\b`)
 
+// if the folder you are trying to output the migrations in already exists
+// archive will move the previous migrations into a timestamped archived folder
+// so you can do easy rollbacks
+func archive(folder string) {
+	f, err := os.Stat(folder)
+	if err != nil || !f.IsDir() {
+		return
+	}
+	archive := fmt.Sprintf("%s_%s", folder, time.Now().Format("2006_01_02_15_04_05"))
+	if err := os.Rename(folder, archive); err != nil {
+		log.Fatalf("cannot archive %s folder", folder)
+	}
+}
+
 func makeMigrations(tables []string, dst string) {
+	archive(dst)
 	os.Mkdir(dst, 0777)
 	now := time.Now().Unix()
 	for _, table := range tables {
