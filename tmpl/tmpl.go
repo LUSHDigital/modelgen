@@ -101,7 +101,7 @@ func GetUpsertValues(m StructTmplData) string {
 		case "UpdatedAt":
 			parts = append(parts, fmt.Sprintf("`%s`=UTC_TIMESTAMP()", fl.ColumnName))
 		default:
-			parts = append(parts, fmt.Sprintf("`%s`=`%s`", fl.ColumnName, fl.ColumnName))
+			parts = append(parts, fmt.Sprintf("`%s`=VALUES(`%s`)", fl.ColumnName, fl.ColumnName))
 		}
 	}
 	return strings.Join(parts, ", ")

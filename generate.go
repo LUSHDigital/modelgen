@@ -18,12 +18,6 @@ import (
 
 func generate(cmd *cobra.Command, args []string) {
 	validate()
-	if *conn == "" {
-		log.Fatal("Empty connection string provided")
-	}
-	if *dbName == "" {
-		log.Fatal("Empty database name")
-	}
 	connect()
 
 	// get the list of tables from the database

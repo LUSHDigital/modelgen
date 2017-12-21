@@ -86,10 +86,10 @@ func connect() {
 }
 
 func validate() {
-	if dbName == nil {
+	if dbName == nil || *dbName == "" {
 		log.Fatal("Please provide a database name")
 	}
-	if conn == nil {
+	if conn == nil || *conn == "" {
 		log.Fatal("Please provide a connection string")
 	}
 }
