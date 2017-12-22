@@ -2,6 +2,16 @@
 
 ModelGen generates working database interaction code from reading your MySQL / MariaDB database.
 
+## Install
+
+```bash
+curl https://raw.githubusercontent.com/LUSHDigital/modelgen/master/install.sh | sh
+```
+
+This will install `modelgen` under `/usr/local/bin`.
+
+If you want to uninstall it, simply delete it.
+
 ## Conventions:
 
 `modelgen` assumes your database will follow a couple conventions:
