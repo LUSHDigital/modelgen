@@ -18,6 +18,7 @@ var (
 	pkgName  *string
 	conn     *string
 	database *sql.DB
+	version  string
 )
 
 func init() {
@@ -44,7 +45,15 @@ func main() {
 		Short: "Generate migration files from a database connection",
 	}
 
-	rootCmd.AddCommand(generateCmd, migrateCmd)
+	versionCmd := &cobra.Command{
+		Use: "version",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(version)
+		},
+		Short: "Returns the current version name",
+	}
+
+	rootCmd.AddCommand(generateCmd, migrateCmd, versionCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)

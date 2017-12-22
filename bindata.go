@@ -85,7 +85,7 @@ func tmplModelHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/model.html", size: 4774, mode: os.FileMode(420), modTime: time.Unix(1513934590, 0)}
+	info := bindataFileInfo{name: "tmpl/model.html", size: 4774, mode: os.FileMode(420), modTime: time.Unix(1513944634, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -105,7 +105,7 @@ func tmplX_helpersHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/x_helpers.html", size: 6536, mode: os.FileMode(420), modTime: time.Unix(1512460598, 0)}
+	info := bindataFileInfo{name: "tmpl/x_helpers.html", size: 6536, mode: os.FileMode(420), modTime: time.Unix(1512142211, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -125,7 +125,7 @@ func tmplX_helpers_testHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/x_helpers_test.html", size: 16511, mode: os.FileMode(420), modTime: time.Unix(1512482539, 0)}
+	info := bindataFileInfo{name: "tmpl/x_helpers_test.html", size: 16511, mode: os.FileMode(420), modTime: time.Unix(1513855505, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
