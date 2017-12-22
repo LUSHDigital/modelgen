@@ -96,10 +96,14 @@ func ({{.Receiver}} *{{.Model.Name}}) Load(db *sql.DB) (set []{{.Model.Name}}, e
 }
 
 // Delete an existing {{.Model.Name}} row from the {{.Model.TableName}} table
-func ({{.Receiver}} *{{.Model.Name}}) Delete(db *sql.DB, id int64) error {
+func ({{.Receiver}} *{{.Model.Name}}) Delete(db *sql.DB, id int64) (rowsAffected int64, err error) {
     const stmt = "DELETE FROM {{.Model.TableName}} WHERE id = ?"
-    _, err := db.Exec(stmt, id)
-    return err
+    result, err := db.Exec(stmt, id)
+	if err != nil {
+		return
+	}
+
+	return result.RowsAffected()
 }
 
 // Count the number of rows from the {{.Model.TableName}} table
