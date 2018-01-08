@@ -121,12 +121,12 @@ func({{.Receiver}} *{{.Model.Name}}) Count(db *sql.DB) (count int64, err error) 
 // In all other cases, a bool and nil will return.
 func({{.Receiver}} *{{.Model.Name}}) Exists(db *sql.DB, id int64) (exists bool, err error) {
     const stmt = "SELECT EXISTS(SELECT 1 FROM {{.Model.TableName}} WHERE id = ? LIMIT 1)"
-    var i int
+    var count int
     row := db.QueryRow(stmt, id)
-    if err = row.Scan(&i); err != nil {
+    if err = row.Scan(&count); err != nil {
         return
     }
-    return i > 0, nil
+    return count > 0, nil
 }
 
 // TableName returns the table name
