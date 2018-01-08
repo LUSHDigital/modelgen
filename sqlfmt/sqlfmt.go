@@ -81,6 +81,7 @@ var acronyms = [...]string{
 	"gprs",  // general packet radio service
 	"grub",  // grand unified bootloader
 	"gui",   // graphical user interface
+	"guid",  // globally unique identifier
 
 	"hdd",  // hard disk drive
 	"hdlc", // high level data link control
@@ -250,6 +251,7 @@ var acronyms = [...]string{
 	"utf",   // UCS transformation format
 	"utms",  // universal mobile telecommunications system
 	"uucp",  // UNIX-to-UNIX copy
+	"uuid",  // univerally unique identifier
 
 	"vfat", // virtual file allocation table
 	"vga",  // video graphics array
