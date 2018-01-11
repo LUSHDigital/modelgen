@@ -248,6 +248,9 @@ return nil
 
 // Scan for NullTime
 func (n *NullTime) Scan(src interface{}) error {
+// Set initial state for subsequent scans.
+n.Valid = false
+
 var a mysql.NullTime
 if err := a.Scan(src); err != nil {
 return err
