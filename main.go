@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -13,10 +12,12 @@ import (
 )
 
 var (
-	output   *string
-	dbName   *string
-	pkgName  *string
-	conn     *string
+	output  *string
+	dbName  *string
+	pkgName *string
+	conn    *string
+	engine  *string
+
 	database *sql.DB
 	version  string
 )
@@ -31,7 +32,8 @@ func main() {
 	pkgName = rootCmd.PersistentFlags().StringP("package", "p", "generated_models", "name of package")
 	output = rootCmd.PersistentFlags().StringP("output", "o", "generated_models", "path to package")
 	dbName = rootCmd.PersistentFlags().StringP("database", "d", "", "name of database")
-	conn = rootCmd.PersistentFlags().StringP("connection", "c", "", "user:pass@host:port")
+	conn = rootCmd.PersistentFlags().StringP("connection", "c", "", "connection string to database")
+	engine = rootCmd.PersistentFlags().StringP("engine", "e", "", "type of database [mysql|postgres]")
 
 	generateCmd := &cobra.Command{
 		Use:   "generate",
@@ -60,36 +62,17 @@ func main() {
 	}
 }
 
-var formatErr = errors.New("invalid connection string format")
-
-func mkDsn(connect, dbname string) string {
-	parts := strings.Split(connect, "@")
-	if len(parts) < 2 {
-		log.Fatal(formatErr)
-	}
-
-	credentials := strings.Split(parts[0], ":")
-	if len(credentials) < 2 {
-		log.Fatal(formatErr)
-	}
-	database := strings.Split(parts[1], ":")
-	if len(database) < 2 {
-		log.Fatal(formatErr)
-	}
-
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", credentials[0], credentials[1], database[0], database[1], dbname)
-}
+var errFormat = errors.New("invalid connection string format")
 
 func connect() {
 	// connect to database
 	var err error
-	database, err = sql.Open("mysql", mkDsn(*conn, *dbName))
-	if err != nil {
+	if database, err = sql.Open(*engine, *conn); err != nil {
 		log.Fatal(err)
 	}
 
 	// check for a valid connection
-	if err := database.Ping(); err != nil {
+	if err = database.Ping(); err != nil {
 		log.Fatal(err)
 	}
 }

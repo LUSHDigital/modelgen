@@ -85,7 +85,7 @@ func tmplModelHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/model.html", size: 4874, mode: os.FileMode(420), modTime: time.Unix(1516866241, 0)}
+	info := bindataFileInfo{name: "tmpl/model.html", size: 4874, mode: os.FileMode(420), modTime: time.Unix(1516874292, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
