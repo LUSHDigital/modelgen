@@ -30,7 +30,7 @@ func generate(cmd *cobra.Command, args []string) {
 	asStructs := toStructs(tables)
 
 	// load the model template
-	modelTpl, err := Asset("tmpl/model.html")
+	modelTpl, err := box.MustBytes("model.html")
 	if err != nil {
 		log.Fatal("cannot load model template")
 	}
@@ -146,7 +146,10 @@ func toStructs(tables []string) []tmpl.TmplStruct {
 }
 
 func copyFile(src, dst, templateName string) {
-	dbFile, err := Asset(filepath.Join("tmpl", src))
+	dbFile, err := box.MustBytes(src)
+	if err != nil {
+		log.Fatalf("cannot retrieve template file: %v", err)
+	}
 
 	t := template.Must(template.New(templateName).Parse(string(dbFile)))
 	buf := new(bytes.Buffer)

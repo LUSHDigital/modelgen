@@ -7,6 +7,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/gobuffalo/packr"
+
 	"github.com/spf13/cobra"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -19,6 +21,7 @@ var (
 	conn     *string
 	database *sql.DB
 	version  string
+	box      packr.Box
 )
 
 func init() {
@@ -26,6 +29,8 @@ func init() {
 }
 
 func main() {
+	box = packr.NewBox("./tmpl")
+
 	rootCmd := &cobra.Command{}
 
 	pkgName = rootCmd.PersistentFlags().StringP("package", "p", "generated_models", "name of package")
