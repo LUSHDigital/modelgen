@@ -8,10 +8,40 @@
   version = "v1.3"
 
 [[projects]]
+  name = "github.com/gobuffalo/envy"
+  packages = ["."]
+  revision = "e613c80275b86293880eddeb27417c9a7c670ff3"
+  version = "v1.3.0"
+
+[[projects]]
+  name = "github.com/gobuffalo/packr"
+  packages = ["."]
+  revision = "64c3dd439b5efc5cd9fb69a8fb209a03cd7c5b86"
+  version = "v1.10.3"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/joho/godotenv"
+  packages = ["."]
+  revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
+  version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -28,6 +58,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "da78f2d1c21ba038cf92ad85c34fdabab2f2aad4b2a77794da94b85ce68f7155"
+  inputs-digest = "b738774e1f55a25c3bc20d02c726869a00555ab0133e468209b45aad6c990b60"
   solver-name = "gps-cdcl"
   solver-version = 1
