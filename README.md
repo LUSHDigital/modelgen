@@ -2,7 +2,7 @@
 
 ModelGen generates working database interaction code from reading your MySQL / MariaDB database.
 
-## Install
+## Install:
 
 ```bash
 curl https://raw.githubusercontent.com/LUSHDigital/modelgen/master/install.sh | sh
@@ -20,6 +20,24 @@ If you want to uninstall it, simply delete it.
 - column names must not collide with a valid Go type, ex: string
 
 The primary `id` doesn't need to auto-increment, though it is recommended.
+
+## Ordering:
+
+In cases where you want the migrations to be generated in a particular order (ex. because of foreign key constraints)
+you can control this by simply adding a comment to your `id` field.
+
+This format must take the following format:
+
+```
+# for example a the user table id has the comment:
+modelgen:1
+
+# then the user_post table id has the comment:
+modelgen:2
+
+```
+
+by doing so you ensure that the `user` table always gets migrated before the `user_post` table.
 
 ## Usage:
 
