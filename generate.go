@@ -14,6 +14,7 @@ import (
 	"github.com/LUSHDigital/modelgen/sqltypes"
 	"github.com/LUSHDigital/modelgen/tmpl"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 func generate(cmd *cobra.Command, args []string) {
@@ -27,7 +28,7 @@ func generate(cmd *cobra.Command, args []string) {
 	}
 
 	// make structs from tables
-	asStructs := toStructs(tables)
+	asStructs := ToStructs(tables)
 
 	// load the model template
 	modelTpl, err := Asset("tmpl/model.html")
@@ -36,50 +37,51 @@ func generate(cmd *cobra.Command, args []string) {
 	}
 	t := template.Must(template.New("model").Funcs(tmpl.FuncMap).Parse(string(modelTpl)))
 
-	// write the models to disk
-	for _, model := range asStructs {
-		writeModel(model, t)
-	}
+	writeModels(asStructs, t)
 
 	// copy in helpers and test suite
 	copyFile("x_helpers.html", "x_helpers.go", "helpers")
 	copyFile("x_helpers_test.html", "x_helpers_test.go", "helperstest")
 }
 
-func writeModel(model tmpl.TmplStruct, t *template.Template) {
-	m := tmpl.StructTmplData{
-		Model:       model,
-		Receiver:    strings.ToLower(string(model.Name[0])),
-		PackageName: *pkgName,
+func writeModels(models []tmpl.TmplStruct, t *template.Template) {
+	for _, model := range models {
+		m := tmpl.StructTmplData{
+			Model:       model,
+			Receiver:    strings.ToLower(string(model.Name[0])),
+			PackageName: *pkgName,
+		}
+
+		buf := new(bytes.Buffer)
+		err := t.Execute(buf, m)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		formatted, err := format.Source(buf.Bytes())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		buf = bytes.NewBuffer(formatted)
+
+		out := *output
+		os.Mkdir(out, 0777)
+
+		p := filepath.Join(out, model.TableName)
+		f, err := os.Create(p + ".go")
+		if err != nil {
+			log.Fatal(err)
+		}
+		buf.WriteTo(f)
+		f.Close()
 	}
-
-	buf := new(bytes.Buffer)
-	err := t.Execute(buf, m)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	formatted, err := format.Source(buf.Bytes())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	buf = bytes.NewBuffer(formatted)
-
-	out := *output
-	os.Mkdir(out, 0777)
-
-	p := filepath.Join(out, model.TableName)
-	f, err := os.Create(p + ".go")
-	if err != nil {
-		log.Fatal(err)
-	}
-	buf.WriteTo(f)
-	f.Close()
 }
 
-func getTables() (tables []string) {
-	const stmt = `SELECT table_name
+func getTables() (tables map[string]string) {
+	tables = make(map[string]string)
+
+	const stmt = `SELECT table_name, column_comment
 				  FROM information_schema.columns AS c
 				  WHERE c.column_key = "PRI"
 				  AND c.table_schema = ?
@@ -89,20 +91,38 @@ func getTables() (tables []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer rows.Close()
 	for rows.Next() {
-		var a string
-		if err := rows.Scan(&a); err != nil {
+		var name string
+		var comment string
+		if err := rows.Scan(&name, &comment); err != nil {
 			log.Fatal(err)
 		}
-		tables = append(tables, a)
+		tables[name] = comment
 	}
 	return tables
 }
 
-func toStructs(tables []string) []tmpl.TmplStruct {
+func GetOrderFromComment(comment string) (order int) {
+	if !strings.HasPrefix(comment, "modelgen") {
+		return
+	}
+	parts := strings.SplitN(comment, ":", 2)
+	if len(parts) != 2 {
+		return
+	}
+	var err error
+	if order, err = strconv.Atoi(parts[1]); err != nil {
+		log.Printf("could not parse id comment [%v], make sure to only use numbers in order comments", parts[1])
+		return
+	}
+	return
+}
+
+func ToStructs(tables map[string]string) []tmpl.TmplStruct {
 	var explained = make(map[string][]sqltypes.Explain)
-	for _, table := range tables {
+	for table := range tables {
 		var expl []sqltypes.Explain
 		rows, err := database.Query("EXPLAIN " + table)
 		if err != nil {
