@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"sort"
 )
 
 func migrate(cmd *cobra.Command, args []string) {
@@ -35,35 +36,53 @@ func archive(folder string) {
 	}
 }
 
-func makeMigrations(tables []string, dst string) {
+type statement struct {
+	tbl   string
+	stmt  string
+	order int
+}
+type statements []statement
+
+func makeMigrations(tables map[string]string, dst string) {
 	archive(dst)
 	os.Mkdir(dst, 0777)
 	now := time.Now().Unix()
-	for _, table := range tables {
+
+	var sts statements
+
+	for table, comment := range tables {
 		// get the create statement
 		row := database.QueryRow(fmt.Sprintf("SHOW CREATE TABLE `%s`", table))
 		var tbl, stmt string
 		row.Scan(&tbl, &stmt)
+		order := GetOrderFromComment(comment)
+		st := statement{tbl, stmt, order}
+		sts = append(sts, st)
+	}
+	sort.Slice(sts, func(i, j int) bool {
+		return sts[i].order < sts[j].order
+	})
 
+	for _, st := range sts {
 		// Create the up migration
-		where := filepath.Join(dst, fmt.Sprintf("%d_create_%s.up.sql", now, tbl))
+		where := filepath.Join(dst, fmt.Sprintf("%d_create_%s.up.sql", now, st.tbl))
 		up, err := os.Create(where)
 		if err != nil {
 			log.Fatal(err)
 		}
-		auto := autoincrementRegExp.FindString(stmt)
-		stmt = strings.Replace(stmt, auto, "", 1)
-		_, err = up.WriteString(stmt + ";")
+		auto := autoincrementRegExp.FindString(st.stmt)
+		st.stmt = strings.Replace(st.stmt, auto, "", 1)
+		_, err = up.WriteString(st.stmt + ";")
 		if err != nil {
 			log.Fatal(err)
 		}
 		// Create the down migration
-		where = filepath.Join(dst, fmt.Sprintf("%d_create_%s.down.sql", now, tbl))
+		where = filepath.Join(dst, fmt.Sprintf("%d_create_%s.down.sql", now, st.tbl))
 		down, err := os.Create(where)
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = down.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS %s;", tbl))
+		_, err = down.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS %s;", st.tbl))
 		if err != nil {
 			log.Fatal(err)
 		}
