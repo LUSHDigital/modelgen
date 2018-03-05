@@ -192,10 +192,15 @@ return n.Bool, nil
 
 // UnmarshalJSON for NullBool
 func (n *NullBool) UnmarshalJSON(b []byte) error {
-err := json.Unmarshal(b, &n.Bool)
-n.Valid = err == nil
+var field *bool
+err := json.Unmarshal(b, &field)
+if field != nil {
+n.Valid = true
+n.Bool = *field
+}
 return err
 }
+
 
 // Scan for NullBool
 func (n *NullBool) Scan(src interface{}) error {
