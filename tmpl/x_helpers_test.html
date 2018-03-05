@@ -214,31 +214,41 @@ t.Errorf("NullString.MarshalJSON() = %v, want %v", got, tt.want)
 
 func TestNullBool_UnmarshalJSON(t *testing.T) {
 tests := []struct {
-name    string
-n       NullBool
-source  []byte
-wantErr bool
+name         string
+n            NullBool
+source       []byte
+wantErr      bool
+wantValidity bool
 }{
 {
-name:    "valid",
-source:  []byte(`false`),
-wantErr: false,
+name:         "valid",
+source:       []byte(`false`),
+wantErr:      false,
+wantValidity: true,
 },
 {
-name:    "invalid",
-source:  []byte(`{"key":"value"}`),
-wantErr: true,
+name:         "invalid",
+source:       []byte(`{"key":"value"}`),
+wantErr:      true,
+wantValidity: false,
 },
 {
-name:    "empty",
-source:  []byte{},
-wantErr: true,
+name:         "empty",
+source:       []byte{},
+wantErr:      true,
+wantValidity: false,
+},
+{
+name:         "explicit null",
+source:       []byte("null"),
+wantErr:      false,
+wantValidity: false,
 },
 }
 for _, tt := range tests {
 t.Run(tt.name, func(t *testing.T) {
-if err := tt.n.UnmarshalJSON(tt.source); (err != nil) != tt.wantErr {
-t.Errorf("NullBool.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+if err := tt.n.UnmarshalJSON(tt.source); (err != nil) != tt.wantErr && tt.n.Valid == tt.wantValidity {
+    t.Errorf("NullBool.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 }
 })
 }
