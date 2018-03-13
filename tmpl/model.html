@@ -37,11 +37,14 @@ func ({{.Receiver}} *{{.Model.Name}}) Insert(db *sql.DB) (lastInsertID int64, er
     return res.LastInsertId()
 }
 
-// Update an existing {{.Model.Name}} row in the {{.Model.TableName}} table
-func ({{.Receiver}} *{{.Model.Name}}) Update(db *sql.DB, id int64) error {
+// Update an existing {{.Model.Name}} row in the {{.Model.TableName}} table.
+func ({{.Receiver}} *{{.Model.Name}}) Update(db *sql.DB, id int64) (int64, error) {
     const stmt = "UPDATE {{.Model.TableName}} SET {{ . | update_values }} WHERE id = ?"
-    _, err := db.Exec(stmt, {{ . | update_args }} , id)
-    return err
+    result, err := db.Exec(stmt, {{ . | update_args }} , id)
+    if err != nil {
+        return 0, err
+    }
+    return result.RowsAffected()
 }
 
 // Upsert inserts a new {{.Model.Name}} row in the {{.Model.TableName}} table
