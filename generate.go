@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	"go/format"
-	"html/template"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"strconv"
 

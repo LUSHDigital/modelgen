@@ -2,17 +2,18 @@ package tmpl
 
 import (
 	"fmt"
-	"html/template"
 	"strings"
+	"text/template"
 )
 
 var FuncMap = template.FuncMap{
-	"insert_fields": GetInsertFields,
-	"insert_values": GetInsertValues,
-	"insert_args":   GetInsertArgs,
-	"scan_fields":   GetScanFields,
-	"update_args":   GetUpdateArgs,
-	"update_values": GetUpdateValues,
+	"insert_fields":      GetInsertFields,
+	"insert_values":      GetInsertValues,
+	"insert_args":        GetInsertArgs,
+	"scan_fields":        GetScanFields,
+	"update_args":        GetUpdateArgs,
+	"update_values":      GetUpdateValues,
+	"update_values_size": GetUpdateValuesLength,
 }
 
 func GetInsertFields(fields []TmplField) string {
@@ -21,14 +22,14 @@ func GetInsertFields(fields []TmplField) string {
 		if fl.ColumnName == "id" {
 			continue
 		}
-		parts = append(parts, "`"+fl.ColumnName+"`")
+		parts = append(parts, `"`+fl.ColumnName+`"`)
 	}
 	return strings.Join(parts, ", ")
 }
 
 func GetInsertValues(fields []TmplField) string {
 	var parts []string
-	for _, fl := range fields {
+	for i, fl := range fields {
 		switch fl.ColumnName {
 		case "id":
 			continue
@@ -36,7 +37,7 @@ func GetInsertValues(fields []TmplField) string {
 			parts = append(parts, "NOW()")
 			continue
 		default:
-			parts = append(parts, "?")
+			parts = append(parts, fmt.Sprintf("$%d", i))
 		}
 	}
 	return strings.Join(parts, ", ")
@@ -49,42 +50,46 @@ func GetInsertArgs(m StructTmplData) string {
 		case "ID", "CreatedAt":
 			continue
 		}
-		parts = append(parts, fmt.Sprintf("%s.%s", m.Receiver, fl.Name))
+		parts = append(parts, fmt.Sprintf(`%s.%s`, m.Receiver, fl.Name))
 	}
 	return strings.Join(parts, ", ")
 }
 
-func GetScanFields(m StructTmplData) template.HTML {
+func GetScanFields(m StructTmplData) string {
 	var parts []string
 	for _, fl := range m.Model.Fields {
-		parts = append(parts, fmt.Sprintf("&%s.%s", m.Receiver, fl.Name))
+		parts = append(parts, fmt.Sprintf(`&%s.%s`, m.Receiver, fl.Name))
 	}
-	return template.HTML(strings.Join(parts, ", "))
+	return strings.Join(parts, ", ")
 }
 
-func GetUpdateArgs(m StructTmplData) template.HTML {
+func GetUpdateArgs(m StructTmplData) string {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		switch fl.Name {
 		case "ID", "CreatedAt", "UpdatedAt":
 			continue
 		}
-		parts = append(parts, fmt.Sprintf("%s.%s", m.Receiver, fl.Name))
+		parts = append(parts, fmt.Sprintf(`%s.%s`, m.Receiver, fl.Name))
 	}
-	return template.HTML(strings.Join(parts, ", "))
+	return strings.Join(parts, ", ")
 }
 
 func GetUpdateValues(m StructTmplData) string {
 	var parts []string
-	for _, fl := range m.Model.Fields {
+	for i, fl := range m.Model.Fields {
 		switch fl.Name {
 		case "ID", "CreatedAt":
 			continue
 		case "UpdatedAt":
-			parts = append(parts, fmt.Sprintf("`%s`=UTC_TIMESTAMP()", fl.ColumnName))
+			parts = append(parts, fmt.Sprintf(`"%s"=now()`, fl.ColumnName))
 		default:
-			parts = append(parts, fmt.Sprintf("`%s`=?", fl.ColumnName))
+			parts = append(parts, fmt.Sprintf(`"%s"=$%d`, fl.ColumnName, i))
 		}
 	}
 	return strings.Join(parts, ", ")
+}
+
+func GetUpdateValuesLength(m StructTmplData) string {
+	return fmt.Sprintf("$%d", len(m.Model.Fields))
 }
