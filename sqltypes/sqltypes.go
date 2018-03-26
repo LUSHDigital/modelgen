@@ -2,18 +2,22 @@ package sqltypes
 
 import (
 	"log"
-	"strconv"
 	"strings"
 )
 
 // Explain wraps the explain query results for a given table
 type Explain struct {
-	Field   *string
-	Type    *string
-	Null    *string
-	Key     *string
-	Default *string
-	Extra   *string
+	Field             *string
+	Type              *string
+	CharLength        *int64
+	OctetLength       *int64
+	NumericPrecision  *int64
+	NumericScale      *int64
+	DateTimePrecision *string
+	Null              *string
+	Key               *string
+	Default           *string
+	Extra             *string
 }
 
 // SQLType unwraps a SQL data type
@@ -29,74 +33,36 @@ var intType = SQLType{"int64", "NullInt64"}
 var boolType = SQLType{"bool", "NullBool"}
 var floatType = SQLType{"float64", "NullFloat64"}
 var jsonType = SQLType{"RawJSON", "RawJSON"}
+var stringArrayType = SQLType{"string[]", "[]string"}
+var intArrayType = SQLType{"int[]", "[]int64"}
+var floatArrayType = SQLType{"decimal[]", "[]float64"}
 
 var dataTypes = map[string]SQLType{
-	"char":    stringType,
-	"varchar": stringType,
+	"STRING": stringType,
 
-	"tinytext":   stringType,
-	"text":       stringType,
-	"mediumtext": stringType,
-	"longtext":   stringType,
+	"INT": intType,
 
-	"json": jsonType,
+	"FLOAT":   floatType,
+	"DECIMAL": floatType,
 
-	"enum": stringType,
-	"set":  stringType,
+	"DATE":      dateType,
+	"TIMESTAMP": dateType,
 
-	//"geometry":           stringType,
-	//"point":              stringType,
-	//"linestring":         stringType,
-	//"polygon":            stringType,
-	//"multipoint":         stringType,
-	//"multilinestring":    stringType,
-	//"multipolygon":       stringType,
-	//"geometrycollection": stringType,
+	"JSON": jsonType,
 
-	"bit":        byteSliceType,
-	"binary":     byteSliceType,
-	"varbinary":  byteSliceType,
-	"tinyblob":   byteSliceType,
-	"mediumblob": byteSliceType,
-	"blob":       byteSliceType,
-	"longblob":   byteSliceType,
+	"STRING[]":  stringArrayType,
+	"INT[]":     intArrayType,
+	"DECIMAL[]": floatArrayType,
 
-	"tinyint_as_bool": boolType,
-	"tinyint":         intType,
-	"smallint":        intType,
-	"mediumint":       intType,
-	"int":             intType,
-	"bigint":          intType,
-
-	"float":   floatType,
-	"double":  floatType,
-	"decimal": floatType,
-
-	"date":      dateType,
-	"datetime":  dateType,
-	"timestamp": dateType,
-	"time":      stringType,
-	"year":      intType,
+	"BOOL":  byteSliceType,
+	"BYTES": byteSliceType,
 }
 
 // AssertType figures out which go type should be used, based on the SQL type.
 func AssertType(columnType string, nullable string) string {
 	nul := nullable == "YES"
-
 	bits := strings.Split(columnType, "(")
 	extractedType := bits[0]
-	var extractedLength int
-	if len(bits) > 1 {
-		idx := strings.Index(bits[1], ")")
-		inner := bits[1][:idx]
-
-		// ignoring error here because if any length cannot be found,
-		// this does not constitute an error, but an expected outcome
-		extractedLength, _ = strconv.Atoi(inner)
-		if extractedType == "tinyint" && extractedLength == 1 {
-			extractedType = "tinyint_as_bool"
-		}
-	}
 
 	for dataType, sqlType := range dataTypes {
 		if extractedType == dataType {

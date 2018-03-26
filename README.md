@@ -1,5 +1,10 @@
 # ModelGen
 
+## CockroachDB Caveats:
+
+* Comments are not supported but will have limited support in 2.0 (I've removed ordering):
+https://github.com/cockroachdb/cockroach/pull/21063
+
 ModelGen generates working database interaction code from reading your MySQL / MariaDB database.
 
 ## Install:

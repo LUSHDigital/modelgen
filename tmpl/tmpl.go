@@ -13,10 +13,6 @@ var FuncMap = template.FuncMap{
 	"scan_fields":   GetScanFields,
 	"update_args":   GetUpdateArgs,
 	"update_values": GetUpdateValues,
-	"upsert_fields": GetUpsertFields,
-	"upsert_values": GetUpsertValues,
-	"upsert_on_duplicate": GetUpsertOnDuplicate,
-	"upsert_args": GetUpsertArgs,
 }
 
 func GetInsertFields(fields []TmplField) string {
@@ -89,57 +85,6 @@ func GetUpdateValues(m StructTmplData) string {
 		default:
 			parts = append(parts, fmt.Sprintf("`%s`=?", fl.ColumnName))
 		}
-	}
-	return strings.Join(parts, ", ")
-}
-
-func GetUpsertFields(fields []TmplField) string {
-	var parts []string
-	for _, fl := range fields {
-		parts = append(parts, "`"+fl.ColumnName+"`")
-	}
-	return strings.Join(parts, ", ")
-}
-
-func GetUpsertValues(fields []TmplField) string {
-	var parts []string
-	for _, fl := range fields {
-		switch fl.ColumnName {
-		case "created_at":
-			parts = append(parts, "NOW()")
-			continue
-		default:
-			parts = append(parts, "?")
-		}
-	}
-	return strings.Join(parts, ", ")
-}
-
-func GetUpsertOnDuplicate(m StructTmplData) string {
-	var parts []string
-	for _, fl := range m.Model.Fields {
-		switch fl.Name {
-		case "CreatedAt":
-			continue
-		case "ID":
-			parts = append(parts, fmt.Sprintf("`%s`=LAST_INSERT_ID(`%s`)", fl.ColumnName, fl.ColumnName))
-		case "UpdatedAt":
-			parts = append(parts, fmt.Sprintf("`%s`=UTC_TIMESTAMP()", fl.ColumnName))
-		default:
-			parts = append(parts, fmt.Sprintf("`%s`=VALUES(`%s`)", fl.ColumnName, fl.ColumnName))
-		}
-	}
-	return strings.Join(parts, ", ")
-}
-
-func GetUpsertArgs(m StructTmplData) string {
-	var parts []string
-	for _, fl := range m.Model.Fields {
-		switch fl.Name {
-		case "CreatedAt":
-			continue
-		}
-		parts = append(parts, fmt.Sprintf("%s.%s", m.Receiver, fl.Name))
 	}
 	return strings.Join(parts, ", ")
 }

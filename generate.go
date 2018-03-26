@@ -10,11 +10,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"strconv"
+
 	"github.com/LUSHDigital/modelgen/sqlfmt"
 	"github.com/LUSHDigital/modelgen/sqltypes"
 	"github.com/LUSHDigital/modelgen/tmpl"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 func generate(cmd *cobra.Command, args []string) {
@@ -78,14 +79,11 @@ func writeModels(models []tmpl.TmplStruct, t *template.Template) {
 	}
 }
 
-func getTables() (tables map[string]string) {
-	tables = make(map[string]string)
-
-	const stmt = `SELECT table_name, column_comment
+func getTables() (tables []string) {
+	const stmt = `SELECT table_name
 				  FROM information_schema.columns AS c
-				  WHERE c.column_key = "PRI"
-				  AND c.table_schema = ?
-      			  AND column_name = "id"`
+				  WHERE c.table_schema = $1
+      			  AND column_name = 'id'`
 
 	rows, err := database.Query(stmt, *dbName)
 	if err != nil {
@@ -95,11 +93,10 @@ func getTables() (tables map[string]string) {
 	defer rows.Close()
 	for rows.Next() {
 		var name string
-		var comment string
-		if err := rows.Scan(&name, &comment); err != nil {
+		if err := rows.Scan(&name); err != nil {
 			log.Fatal(err)
 		}
-		tables[name] = comment
+		tables = append(tables, name)
 	}
 	return tables
 }
@@ -120,17 +117,21 @@ func GetOrderFromComment(comment string) (order int) {
 	return
 }
 
-func ToStructs(tables map[string]string) []tmpl.TmplStruct {
+func ToStructs(tables []string) []tmpl.TmplStruct {
+	const stmt = `SELECT c.column_name, c.column_default, c.is_nullable, c.data_type, c.character_maximum_length, c.character_octet_length, c.numeric_precision, c.numeric_scale, c.datetime_precision
+	        	  FROM information_schema.columns AS c
+				  WHERE c.table_name = $1`
+
 	var explained = make(map[string][]sqltypes.Explain)
-	for table := range tables {
+	for _, table := range tables {
 		var expl []sqltypes.Explain
-		rows, err := database.Query("EXPLAIN " + table)
+		rows, err := database.Query(stmt, table)
 		if err != nil {
 			log.Fatal(err)
 		}
 		for rows.Next() {
 			var ex sqltypes.Explain
-			if err := rows.Scan(&ex.Field, &ex.Type, &ex.Null, &ex.Key, &ex.Default, &ex.Extra); err != nil {
+			if err := rows.Scan(&ex.Field, &ex.Default, &ex.Null, &ex.Type, &ex.CharLength, &ex.OctetLength, &ex.NumericPrecision, &ex.NumericScale, &ex.DateTimePrecision); err != nil {
 				log.Fatal(err)
 			}
 			expl = append(expl, ex)

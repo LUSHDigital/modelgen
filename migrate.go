@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"sort"
 )
 
 func migrate(cmd *cobra.Command, args []string) {
@@ -37,31 +36,26 @@ func archive(folder string) {
 }
 
 type statement struct {
-	tbl   string
-	stmt  string
-	order int
+	tbl  string
+	stmt string
 }
 type statements []statement
 
-func makeMigrations(tables map[string]string, dst string) {
+func makeMigrations(tables []string, dst string) {
 	archive(dst)
 	os.Mkdir(dst, 0777)
 	now := time.Now().Unix()
 
 	var sts statements
 
-	for table, comment := range tables {
+	for _, table := range tables {
 		// get the create statement
 		row := database.QueryRow(fmt.Sprintf("SHOW CREATE TABLE `%s`", table))
 		var tbl, stmt string
 		row.Scan(&tbl, &stmt)
-		order := GetOrderFromComment(comment)
-		st := statement{tbl, stmt, order}
+		st := statement{tbl, stmt}
 		sts = append(sts, st)
 	}
-	sort.Slice(sts, func(i, j int) bool {
-		return sts[i].order < sts[j].order
-	})
 
 	for _, st := range sts {
 		// Create the up migration
@@ -88,6 +82,6 @@ func makeMigrations(tables map[string]string, dst string) {
 		}
 
 		// Ensure the time increments properly
-		now += 1
+		now++
 	}
 }

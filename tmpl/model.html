@@ -47,17 +47,6 @@ func ({{.Receiver}} *{{.Model.Name}}) Update(db *sql.DB, id int64) (int64, error
     return result.RowsAffected()
 }
 
-// Upsert inserts a new {{.Model.Name}} row in the {{.Model.TableName}} table
-// if the unique constraints are not found, otherwise it updates it.
-func ({{.Receiver}} *{{.Model.Name}}) Upsert(db *sql.DB) (lastInsertID int64, err error) {
-    const stmt = "INSERT INTO {{.Model.TableName}} ({{.Model.Fields | upsert_fields}}) VALUES ({{.Model.Fields | upsert_values}}) ON DUPLICATE KEY UPDATE {{ . | upsert_on_duplicate }}"
-    res, err := db.Exec(stmt, {{ . | upsert_args }})
-    if err != nil {
-        return 0, err
-    }
-    return res.LastInsertId()
-}
-
 // Find an existing {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Find(db *sql.DB, id int64) error {
     const stmt = "SELECT * FROM {{.Model.TableName}} WHERE id = ?"
@@ -134,19 +123,19 @@ func({{.Receiver}} *{{.Model.Name}}) Exists(db *sql.DB, id int64) (exists bool, 
 
 // TableName returns the table name
 func ({{.Receiver}} *{{.Model.Name}}) TableName() string {
-return "{{.Model.TableName}}"
+    return "{{.Model.TableName}}"
 }
 
 // SetLimit sets the query limit
 func ({{.Receiver}} *{{.Model.Name}}) SetLimit(limit int) *{{.Model.Name}} {
-{{.Receiver}}.limit = limit
-return {{.Receiver}}
+    {{.Receiver}}.limit = limit
+    return {{.Receiver}}
 }
 
 // SetOffset sets the query offset
 func ({{.Receiver}} *{{.Model.Name}}) SetOffset(offset int) *{{.Model.Name}} {
-{{.Receiver}}.offset = offset
-return {{.Receiver}}
+    {{.Receiver}}.offset = offset
+    return {{.Receiver}}
 }
 {{end}}
 

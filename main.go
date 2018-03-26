@@ -11,7 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 var (
@@ -82,13 +82,13 @@ func mkDsn(connect, dbname string) string {
 		log.Fatal(formatErr)
 	}
 
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", credentials[0], credentials[1], database[0], database[1], dbname)
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", credentials[0], credentials[1], database[0], database[1], dbname)
 }
 
 func connect() {
 	// connect to database
 	var err error
-	database, err = sql.Open("mysql", mkDsn(*conn, *dbName))
+	database, err = sql.Open("postgres", mkDsn(*conn, *dbName))
 	if err != nil {
 		log.Fatal(err)
 	}
