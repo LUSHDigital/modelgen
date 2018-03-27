@@ -870,7 +870,7 @@ func TestStringArray_UnmarshalJSON(t *testing.T) {
 		{
 			name:    "valid",
 			source:  []byte(`["a","b","c"]`),
-			exp:     StringArray([]string{"a", "b", "c"}),
+			exp:     StringArray{"a", "b", "c"},
 			wantErr: false,
 		},
 		{
@@ -910,7 +910,7 @@ func TestStringArray_Value(t *testing.T) {
 	}{
 		{
 			name:    "valid",
-			n:       StringArray([]string{"a", "b", "c"}),
+			n:       StringArray{"a", "b", "c"},
 			want:    driver.Value("{a,b,c}"),
 			wantErr: false,
 		},
@@ -939,7 +939,7 @@ func TestStringArray_Scan(t *testing.T) {
 		{
 			name:    "valid",
 			src:     []byte(`{"a", "b", "c"}`),
-			exp:     StringArray([]string{"a", "b", "c"}),
+			exp:     StringArray{"a", "b", "c"},
 			wantErr: false,
 		},
 		{
@@ -955,14 +955,14 @@ func TestStringArray_Scan(t *testing.T) {
 			if err := sa.Scan(tt.src); (err != nil) != tt.wantErr {
 				t.Errorf("StringArray.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if tt.src == nil && len([]string(*sa)) > 0 {
+			if tt.src == nil && len(*sa) > 0 {
 				t.Errorf("should by empty")
 			}
 			if sa == nil && tt.src != nil {
 				t.Errorf("received null")
 			}
-			if !reflect.DeepEqual([]string(tt.exp), []string(*sa)) {
-				t.Errorf("StringArray.Scan() exp: %[1]v (%[1]T) got: %[2]v (%[2]T)", []string(tt.exp), []string(*sa))
+			if !reflect.DeepEqual(tt.exp, *sa) {
+				t.Errorf("StringArray.Scan() exp: %[1]v (%[1]T) got: %[2]v (%[2]T)", tt.exp, *sa)
 			}
 		})
 	}
@@ -977,7 +977,7 @@ func TestStringArray_MarshalJSON(t *testing.T) {
 	}{
 		{
 			name:    "valid",
-			n:       StringArray([]string{"a", "b", "c"}),
+			n:       StringArray{"a", "b", "c"},
 			want:    []byte(`["a","b","c"]`),
 			wantErr: false,
 		},
@@ -1002,6 +1002,149 @@ func TestStringArray_MarshalJSON(t *testing.T) {
 	}
 }
 
+func TestIntArray_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       IntArray
+		exp     IntArray
+		source  []byte
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			source:  []byte(`[1, 2, 3]`),
+			exp:     IntArray{1, 2, 3},
+			wantErr: false,
+		},
+		{
+			name:    "invalid 1",
+			source:  []byte(`{1, 2, 3}`),
+			wantErr: true,
+		},
+		{
+			name:    "invalid 2",
+			source:  []byte(`[1, 2, "c"]`),
+			wantErr: true,
+		},
+		{
+			name:    "empty",
+			source:  []byte{},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.n.UnmarshalJSON(tt.source); (err != nil) != tt.wantErr {
+				t.Errorf("IntArray.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr && !reflect.DeepEqual(tt.exp, tt.n) {
+				t.Errorf("IntArray.UnmarshalJSON() exp: %v got %v", tt.exp, tt.n)
+			}
+		})
+	}
+}
+
+func TestIntArray_Value(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       IntArray
+		want    driver.Value
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			n:       IntArray{1, 2, 3},
+			want:    driver.Value("{1,2,3}"),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.n.Value()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("IntArray.Value() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("IntArray.Value() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIntArray_Scan(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+		src     interface{}
+		exp     IntArray
+	}{
+		{
+			name:    "valid",
+			src:     []byte(`{1, 2, 3}`),
+			exp:     IntArray{1, 2, 3},
+			wantErr: false,
+		},
+		{
+			name:    "nil value",
+			src:     nil,
+			exp:     IntArray{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sa := &IntArray{}
+			if err := sa.Scan(tt.src); (err != nil) != tt.wantErr {
+				t.Errorf("IntArray.Scan() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.src == nil && len(*sa) > 0 {
+				t.Errorf("should by empty")
+			}
+			if sa == nil && tt.src != nil {
+				t.Errorf("received null")
+			}
+			if !reflect.DeepEqual(tt.exp, *sa) {
+				t.Errorf("IntArray.Scan() exp: %[1]v (%[1]T) got: %[2]v (%[2]T)", tt.exp, *sa)
+			}
+		})
+	}
+}
+
+func TestIntArray_MarshalJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       IntArray
+		want    []byte
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			n:       IntArray{1, 2, 3},
+			want:    []byte(`[1,2,3]`),
+			wantErr: false,
+		},
+		{
+			name:    "valid null",
+			n:       nil,
+			want:    []byte(`null`),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.n.MarshalJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("IntArray.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("IntArray.MarshalJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestToNullBool(t *testing.T) {
 	b := true
 	bb := ToNullBool(&b)
@@ -1021,6 +1164,7 @@ func TestToNullBool(t *testing.T) {
 		t.Errorf("expected false, got %v", bb2.Bool)
 	}
 }
+
 func TestToNullInt64(t *testing.T) {
 	b := int64(123)
 	bb := ToNullInt64(&b)
@@ -1060,6 +1204,7 @@ func TestToNullFloat64(t *testing.T) {
 		t.Errorf("expected 0, got %v", bb2.Float64)
 	}
 }
+
 func TestToNullString(t *testing.T) {
 	b := "qwe"
 	bb := ToNullString(&b)
@@ -1079,6 +1224,7 @@ func TestToNullString(t *testing.T) {
 		t.Errorf("expected <empty string>, got %v", bb2.String)
 	}
 }
+
 func TestToNullTime(t *testing.T) {
 	tim := time.Now()
 	bb := ToNullTime(tim)

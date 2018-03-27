@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -49,6 +50,9 @@ type RawJSON json.RawMessage
 
 // StringArray aliases []string
 type StringArray []string
+
+// IntArray aliases []int64
+type IntArray []int64
 
 /*---------------------------+
 | NullString implementations |
@@ -345,6 +349,55 @@ func (n *StringArray) Scan(src interface{}) error {
 	parts := strings.Split(raw, ",")
 	for _, part := range parts {
 		*n = append(*n, strings.Trim(part, `" `))
+	}
+
+	return nil
+}
+
+/***************************
+* IntArray implementations *
+***************************/
+
+// MarshalJSON marshals a IntArray into JSON.
+func (n IntArray) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]int64(n))
+}
+
+// UnmarshalJSON unmarshals JSON into a IntArray.
+func (n *IntArray) UnmarshalJSON(b []byte) error {
+	var raw []int64
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+
+	*n = IntArray(raw)
+	return nil
+}
+
+// Value is used when writing data into the database.
+func (n IntArray) Value() (driver.Value, error) {
+	return "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(n)), ","), "[]") + "}", nil
+}
+
+// Scan is used when reading data from the database.
+func (n *IntArray) Scan(src interface{}) error {
+	if src == nil {
+		return nil
+	}
+
+	rawBytes, ok := src.([]byte)
+	if !ok {
+		return fmt.Errorf("expected []byte in IntArray.Scan but got %T", src)
+	}
+
+	raw := strings.Trim(string(rawBytes), "{} ")
+	parts := strings.Split(raw, ",")
+	for _, part := range parts {
+		i, err := strconv.ParseInt(strings.Trim(part, ` `), 10, 64)
+		if err != nil {
+			return err
+		}
+		*n = append(*n, i)
 	}
 
 	return nil
