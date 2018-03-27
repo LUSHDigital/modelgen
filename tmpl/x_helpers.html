@@ -57,6 +57,9 @@ type IntArray []int64
 // FloatArray aliases []float64
 type FloatArray []float64
 
+// BoolArray aliases []bool
+type BoolArray []bool
+
 /*---------------------------+
 | NullString implementations |
 +---------------------------*/
@@ -446,6 +449,55 @@ func (n *FloatArray) Scan(src interface{}) error {
 	parts := strings.Split(raw, ",")
 	for _, part := range parts {
 		f, err := strconv.ParseFloat(strings.Trim(part, ` `), 64)
+		if err != nil {
+			return err
+		}
+		*n = append(*n, f)
+	}
+
+	return nil
+}
+
+/****************************
+* BoolArray implementations *
+****************************/
+
+// MarshalJSON marshals a BoolArray into JSON.
+func (n BoolArray) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]bool(n))
+}
+
+// UnmarshalJSON unmarshals JSON into a BoolArray.
+func (n *BoolArray) UnmarshalJSON(b []byte) error {
+	var raw []bool
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+
+	*n = BoolArray(raw)
+	return nil
+}
+
+// Value is used when writing data into the database.
+func (n BoolArray) Value() (driver.Value, error) {
+	return "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(n)), ","), "[]") + "}", nil
+}
+
+// Scan is used when reading data from the database.
+func (n *BoolArray) Scan(src interface{}) error {
+	if src == nil {
+		return nil
+	}
+
+	rawBytes, ok := src.([]byte)
+	if !ok {
+		return fmt.Errorf("expected []byte in BoolArray.Scan but got %T", src)
+	}
+
+	raw := strings.Trim(string(rawBytes), "{} ")
+	parts := strings.Split(raw, ",")
+	for _, part := range parts {
+		f, err := strconv.ParseBool(strings.Trim(part, ` `))
 		if err != nil {
 			return err
 		}

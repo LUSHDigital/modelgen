@@ -36,6 +36,7 @@ var jsonType = SQLType{"RawJSON", "RawJSON"}
 var stringArrayType = SQLType{"StringArray", "StringArray"}
 var intArrayType = SQLType{"IntArray", "IntArray"}
 var floatArrayType = SQLType{"FloatArray", "FloatArray"}
+var boolArrayType = SQLType{"BoolArray", "BoolArray"}
 
 var dataTypes = map[string]SQLType{
 	"STRING": stringType,
@@ -54,6 +55,7 @@ var dataTypes = map[string]SQLType{
 	"INT[]":     intArrayType,
 	"FLOAT[]":   floatArrayType,
 	"DECIMAL[]": floatArrayType,
+	"BOOL[]":    boolArrayType,
 
 	"BOOL":  byteSliceType,
 	"BYTES": byteSliceType,
