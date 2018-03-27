@@ -33,21 +33,23 @@ var intType = SQLType{"int64", "NullInt64"}
 var boolType = SQLType{"bool", "NullBool"}
 var floatType = SQLType{"float64", "NullFloat64"}
 var jsonType = SQLType{"RawJSON", "RawJSON"}
+
 var stringArrayType = SQLType{"StringArray", "StringArray"}
 var intArrayType = SQLType{"IntArray", "IntArray"}
 var floatArrayType = SQLType{"FloatArray", "FloatArray"}
 var boolArrayType = SQLType{"BoolArray", "BoolArray"}
 
 var dataTypes = map[string]SQLType{
-	"STRING": stringType,
-
-	"INT": intType,
-
+	"STRING":  stringType,
+	"INT":     intType,
 	"FLOAT":   floatType,
 	"DECIMAL": floatType,
+	"BOOL":    boolType,
 
 	"DATE":      dateType,
 	"TIMESTAMP": dateType,
+
+	"BYTES": byteSliceType,
 
 	"JSON": jsonType,
 
@@ -56,9 +58,6 @@ var dataTypes = map[string]SQLType{
 	"FLOAT[]":   floatArrayType,
 	"DECIMAL[]": floatArrayType,
 	"BOOL[]":    boolArrayType,
-
-	"BOOL":  byteSliceType,
-	"BYTES": byteSliceType,
 }
 
 // AssertType figures out which go type should be used, based on the SQL type.
