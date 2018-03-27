@@ -33,9 +33,9 @@ var intType = SQLType{"int64", "NullInt64"}
 var boolType = SQLType{"bool", "NullBool"}
 var floatType = SQLType{"float64", "NullFloat64"}
 var jsonType = SQLType{"RawJSON", "RawJSON"}
-var stringArrayType = SQLType{"string[]", "[]string"}
-var intArrayType = SQLType{"int[]", "[]int64"}
-var floatArrayType = SQLType{"decimal[]", "[]float64"}
+var stringArrayType = SQLType{"StringArray", "StringArray"}
+var intArrayType = SQLType{"IntArray", "IntArray"}
+var floatArrayType = SQLType{"FloatArray", "FloatArray"}
 
 var dataTypes = map[string]SQLType{
 	"STRING": stringType,
