@@ -54,6 +54,9 @@ type StringArray []string
 // IntArray aliases []int64
 type IntArray []int64
 
+// FloatArray aliases []float64
+type FloatArray []float64
+
 /*---------------------------+
 | NullString implementations |
 +---------------------------*/
@@ -398,6 +401,55 @@ func (n *IntArray) Scan(src interface{}) error {
 			return err
 		}
 		*n = append(*n, i)
+	}
+
+	return nil
+}
+
+/***************************
+* FloatArray implementations *
+***************************/
+
+// MarshalJSON marshals a FloatArray into JSON.
+func (n FloatArray) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]float64(n))
+}
+
+// UnmarshalJSON unmarshals JSON into a FloatArray.
+func (n *FloatArray) UnmarshalJSON(b []byte) error {
+	var raw []float64
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+
+	*n = FloatArray(raw)
+	return nil
+}
+
+// Value is used when writing data into the database.
+func (n FloatArray) Value() (driver.Value, error) {
+	return "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(n)), ","), "[]") + "}", nil
+}
+
+// Scan is used when reading data from the database.
+func (n *FloatArray) Scan(src interface{}) error {
+	if src == nil {
+		return nil
+	}
+
+	rawBytes, ok := src.([]byte)
+	if !ok {
+		return fmt.Errorf("expected []byte in FloatArray.Scan but got %T", src)
+	}
+
+	raw := strings.Trim(string(rawBytes), "{} ")
+	parts := strings.Split(raw, ",")
+	for _, part := range parts {
+		f, err := strconv.ParseFloat(strings.Trim(part, ` `), 64)
+		if err != nil {
+			return err
+		}
+		*n = append(*n, f)
 	}
 
 	return nil

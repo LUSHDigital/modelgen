@@ -52,6 +52,7 @@ var dataTypes = map[string]SQLType{
 
 	"STRING[]":  stringArrayType,
 	"INT[]":     intArrayType,
+	"FLOAT[]":   floatArrayType,
 	"DECIMAL[]": floatArrayType,
 
 	"BOOL":  byteSliceType,

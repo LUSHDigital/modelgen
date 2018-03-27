@@ -1145,6 +1145,149 @@ func TestIntArray_MarshalJSON(t *testing.T) {
 	}
 }
 
+func TestFloatArray_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       FloatArray
+		exp     FloatArray
+		source  []byte
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			source:  []byte(`[1.23, 2.34, 3.45]`),
+			exp:     FloatArray{1.23, 2.34, 3.45},
+			wantErr: false,
+		},
+		{
+			name:    "invalid 1",
+			source:  []byte(`{1.23, 2.34, 3.45}`),
+			wantErr: true,
+		},
+		{
+			name:    "invalid 2",
+			source:  []byte(`[1.23, 2.34, "c"]`),
+			wantErr: true,
+		},
+		{
+			name:    "empty",
+			source:  []byte{},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.n.UnmarshalJSON(tt.source); (err != nil) != tt.wantErr {
+				t.Errorf("FloatArray.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr && !reflect.DeepEqual(tt.exp, tt.n) {
+				t.Errorf("FloatArray.UnmarshalJSON() exp: %v got %v", tt.exp, tt.n)
+			}
+		})
+	}
+}
+
+func TestFloatArray_Value(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       FloatArray
+		want    driver.Value
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			n:       FloatArray{1.23, 2.34, 3.45},
+			want:    driver.Value("{1.23,2.34,3.45}"),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.n.Value()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("FloatArray.Value() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FloatArray.Value() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFloatArray_Scan(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+		src     interface{}
+		exp     FloatArray
+	}{
+		{
+			name:    "valid",
+			src:     []byte(`{1.23, 2.34, 3.45}`),
+			exp:     FloatArray{1.23, 2.34, 3.45},
+			wantErr: false,
+		},
+		{
+			name:    "nil value",
+			src:     nil,
+			exp:     FloatArray{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sa := &FloatArray{}
+			if err := sa.Scan(tt.src); (err != nil) != tt.wantErr {
+				t.Errorf("FloatArray.Scan() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.src == nil && len(*sa) > 0 {
+				t.Errorf("should by empty")
+			}
+			if sa == nil && tt.src != nil {
+				t.Errorf("received null")
+			}
+			if !reflect.DeepEqual(tt.exp, *sa) {
+				t.Errorf("FloatArray.Scan() exp: %[1]v (%[1]T) got: %[2]v (%[2]T)", tt.exp, *sa)
+			}
+		})
+	}
+}
+
+func TestFloatArray_MarshalJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       FloatArray
+		want    []byte
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			n:       FloatArray{1.23, 2.34, 3.45},
+			want:    []byte(`[1.23,2.34,3.45]`),
+			wantErr: false,
+		},
+		{
+			name:    "valid null",
+			n:       nil,
+			want:    []byte(`null`),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.n.MarshalJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("FloatArray.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FloatArray.MarshalJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestToNullBool(t *testing.T) {
 	b := true
 	bb := ToNullBool(&b)
