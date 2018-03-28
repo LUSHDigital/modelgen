@@ -11,6 +11,7 @@ import (
 "database/sql"
 "database/sql/driver"
 "encoding/json"
+"log"
 "reflect"
 "strings"
 "time"
@@ -24,6 +25,18 @@ const StdTime = "15:04:05"
 // emptyTime allows default times to be considered
 // null for insertion into the database.
 var emptyTime = time.Time{}
+
+/********
+* Types *
+********/
+
+// Queryer allows sql.DB and sql.Tx to be used interchangeably, allowing you
+// to use any of the model methods inside transactions or standalone calls.
+type Queryer interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
 
 /*-------------+
 | Type aliases |
@@ -345,5 +358,34 @@ if t == emptyTime {
 return NullTime(mysql.NullTime{Valid: false})
 }
 return NullTime(mysql.NullTime{Time: t, Valid: true})
+}
+
+// ExecuteTransaction closes over a transaction and automatically commits
+// or rollbacks depending on whether errors were encountered.
+func ExecuteTransaction(db *sql.DB, f func(*sql.Tx) error) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() error {
+		if r := recover(); r != nil {
+			// Only need to log here because panic won't report whether
+			// the rollback was successful or not.
+			if err = tx.Rollback(); err != nil {
+				log.Println("db rollback error:", err)
+			}
+			panic(r)
+		} else if err != nil {
+			return fmt.Errorf("db error: %v rollback error: %v", err, tx.Rollback())
+		} else {
+			if err = tx.Commit(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}()
+
+	return f(tx)
 }
 {{end}}
