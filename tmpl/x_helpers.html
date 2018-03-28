@@ -337,11 +337,18 @@ func (n *StringArray) UnmarshalJSON(b []byte) error {
 
 // Value is used when writing data into the database.
 func (n StringArray) Value() (driver.Value, error) {
+	if n == nil || len(n) == 0 {
+		return nil, nil
+	}
+
 	return "{" + strings.Join(n, ",") + "}", nil
 }
 
 // Scan is used when reading data from the database.
 func (n *StringArray) Scan(src interface{}) error {
+	// Emtpy the array to protect against reused scan structs.
+	*n = (*n)[:0]
+
 	if src == nil {
 		return nil
 	}
@@ -352,7 +359,15 @@ func (n *StringArray) Scan(src interface{}) error {
 	}
 
 	raw := strings.Trim(string(rawBytes), "{} ")
+	if raw == "" {
+		return nil
+	}
+
 	parts := strings.Split(raw, ",")
+	if len(parts) == 0 {
+		return nil
+	}
+
 	for _, part := range parts {
 		*n = append(*n, strings.Trim(part, `" `))
 	}
@@ -382,11 +397,18 @@ func (n *IntArray) UnmarshalJSON(b []byte) error {
 
 // Value is used when writing data into the database.
 func (n IntArray) Value() (driver.Value, error) {
+	if n == nil || len(n) == 0 {
+		return nil, nil
+	}
+
 	return "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(n)), ","), "[]") + "}", nil
 }
 
 // Scan is used when reading data from the database.
 func (n *IntArray) Scan(src interface{}) error {
+	// Emtpy the array to protect against reused scan structs.
+	*n = (*n)[:0]
+
 	if src == nil {
 		return nil
 	}
@@ -397,7 +419,15 @@ func (n *IntArray) Scan(src interface{}) error {
 	}
 
 	raw := strings.Trim(string(rawBytes), "{} ")
+	if raw == "" {
+		return nil
+	}
+
 	parts := strings.Split(raw, ",")
+	if len(parts) == 0 {
+		return nil
+	}
+
 	for _, part := range parts {
 		i, err := strconv.ParseInt(strings.Trim(part, ` `), 10, 64)
 		if err != nil {
@@ -431,11 +461,18 @@ func (n *FloatArray) UnmarshalJSON(b []byte) error {
 
 // Value is used when writing data into the database.
 func (n FloatArray) Value() (driver.Value, error) {
+	if n == nil || len(n) == 0 {
+		return nil, nil
+	}
+
 	return "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(n)), ","), "[]") + "}", nil
 }
 
 // Scan is used when reading data from the database.
 func (n *FloatArray) Scan(src interface{}) error {
+	// Emtpy the array to protect against reused scan structs.
+	*n = (*n)[:0]
+
 	if src == nil {
 		return nil
 	}
@@ -446,7 +483,15 @@ func (n *FloatArray) Scan(src interface{}) error {
 	}
 
 	raw := strings.Trim(string(rawBytes), "{} ")
+	if raw == "" {
+		return nil
+	}
+
 	parts := strings.Split(raw, ",")
+	if len(parts) == 0 {
+		return nil
+	}
+
 	for _, part := range parts {
 		f, err := strconv.ParseFloat(strings.Trim(part, ` `), 64)
 		if err != nil {
@@ -480,11 +525,18 @@ func (n *BoolArray) UnmarshalJSON(b []byte) error {
 
 // Value is used when writing data into the database.
 func (n BoolArray) Value() (driver.Value, error) {
+	if n == nil || len(n) == 0 {
+		return nil, nil
+	}
+	
 	return "{" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(n)), ","), "[]") + "}", nil
 }
 
 // Scan is used when reading data from the database.
 func (n *BoolArray) Scan(src interface{}) error {
+	// Emtpy the array to protect against reused scan structs.
+	*n = (*n)[:0]
+	
 	if src == nil {
 		return nil
 	}
@@ -495,7 +547,15 @@ func (n *BoolArray) Scan(src interface{}) error {
 	}
 
 	raw := strings.Trim(string(rawBytes), "{} ")
+	if raw == "" {
+		return nil
+	}
+
 	parts := strings.Split(raw, ",")
+	if len(parts) == 0 {
+		return nil
+	}
+
 	for _, part := range parts {
 		f, err := strconv.ParseBool(strings.Trim(part, ` `))
 		if err != nil {
