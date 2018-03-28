@@ -1,4 +1,4 @@
-# ModelGen
+# ModelGen ![](https://api.travis-ci.org/LUSHDigital/modelgen.svg?branch=master)
 
 ModelGen generates working database interaction code from reading your MySQL / MariaDB database.
 
