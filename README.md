@@ -1,6 +1,6 @@
-# ModelGen ![](https://api.travis-ci.org/LUSHDigital/modelgen.svg?branch=master)
+# Modelgen ![](https://api.travis-ci.org/LUSHDigital/modelgen.svg?branch=master)
 
-ModelGen generates working database interaction code from reading your MySQL / MariaDB database.
+Modelgen generates working database interaction code from reading your MySQL / MariaDB database.
 
 ## Install:
 
@@ -56,7 +56,7 @@ Flags:
   -h, --help                help for this command
   -o, --output string       path to package (default "generated_models")
   -p, --package string      name of package (default "generated_models")
-    	
+
 Example:
 
 # Create models
