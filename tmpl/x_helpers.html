@@ -11,11 +11,11 @@ import (
 "database/sql"
 "database/sql/driver"
 "encoding/json"
+"fmt"
 "log"
 "reflect"
 "strings"
 "time"
-"fmt"
 
 "github.com/go-sql-driver/mysql"
 )
@@ -363,30 +363,32 @@ return NullTime(mysql.NullTime{Time: t, Valid: true})
 
 // ExecuteTransaction closes over a transaction and automatically commits
 // or rollbacks depending on whether errors were encountered.
-func ExecuteTransaction(db *sql.DB, f func(*sql.Tx) error) error {
-	tx, err := db.Begin()
-	if err != nil {
+func ExecuteTransaction(db *sql.DB, f func(*sql.Tx) error) (err error) {
+	var tx *sql.Tx
+	if tx, err = db.Begin(); err != nil {
 		return err
 	}
 
-	defer func() error {
+	defer func() {
 		if r := recover(); r != nil {
 			// Only need to log here because panic won't report whether
 			// the rollback was successful or not.
-			if err = tx.Rollback(); err != nil {
-				log.Println("db rollback error:", err)
+			if txerr := tx.Rollback(); txerr != nil {
+				log.Println("db rollback error:", txerr)
 			}
+
+			log.Printf("rolled back transaction")
 			panic(r)
 		} else if err != nil {
-			return fmt.Errorf("db error: %v rollback error: %v", err, tx.Rollback())
+			err = fmt.Errorf("db error: %v rollback error: %v", err, tx.Rollback())
 		} else {
-			if err = tx.Commit(); err != nil {
-				return err
+			if txerr := tx.Commit(); txerr != nil {
+				err = fmt.Errorf("db error: %v commit error: %v", err, txerr)
 			}
 		}
-		return nil
 	}()
 
-	return f(tx)
+	err = f(tx)
+	return err
 }
 {{end}}
