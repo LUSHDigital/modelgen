@@ -361,11 +361,43 @@ return NullTime(mysql.NullTime{Valid: false})
 return NullTime(mysql.NullTime{Time: t, Valid: true})
 }
 
+// TxOptions defines an option type for configuring
+// transations. This may only be used with the ExecuteTransaction wrapper.
+type TxOptions struct {
+	Timeout   time.Duration
+	Isolation sql.IsolationLevel
+	ReadOnly  bool
+}
+
 // ExecuteTransaction closes over a transaction and automatically commits
 // or rollbacks depending on whether errors were encountered.
-func ExecuteTransaction(db *sql.DB, f func(*sql.Tx) error) (err error) {
+// In the case where nil is passed for opt (*TxOption), the following defaults are used:
+//  &TxOptions{
+//  	Timeout:   5 * time.Second,
+//  	Isolation: sql.LevelSerializable,
+//  	ReadOnly:  false,
+//  }
+func ExecuteTransaction(db *sql.DB, opt *TxOptions, actions func(*sql.Tx) error) (err error) {
+	// Provide safe defaults in case none were given.
+	if opt == nil {
+		opt = &TxOptions{
+			Timeout:   5 * time.Second,
+			Isolation: sql.LevelSerializable,
+			ReadOnly:  false,
+		}
+	}
+
+	// Build the context with the provided timeout.
+	// This will be used to define the total time the transaction may take,
+	// past this time, it will be cancelled, rollback, then throw an error.
+	ctx, cancel := context.WithTimeout(context.Background(), opt.Timeout)
+	defer cancel()
+
 	var tx *sql.Tx
-	if tx, err = db.Begin(); err != nil {
+	if tx, err = db.BeginTx(ctx, &sql.TxOptions{
+		Isolation: opt.Isolation,
+		ReadOnly:  opt.ReadOnly,
+	}); err != nil {
 		return err
 	}
 
@@ -388,7 +420,7 @@ func ExecuteTransaction(db *sql.DB, f func(*sql.Tx) error) (err error) {
 		}
 	}()
 
-	err = f(tx)
+	err = actions(tx)
 	return err
 }
 {{end}}
