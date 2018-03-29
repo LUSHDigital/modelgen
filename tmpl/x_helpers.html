@@ -413,10 +413,14 @@ func ExecuteTransaction(db *sql.DB, opt *TxOptions, actions func(*sql.Tx) error)
 			log.Printf("rolled back transaction")
 			panic(r)
 		} else if err != nil {
-			err = fmt.Errorf("db error: %v rollback error: %v", err, tx.Rollback())
+			// If we run into issues rolling back, keep track of the error that
+			// caused the issue and provide some context on the rollback failure.
+			if rerr := tx.Rollback(); rerr != nil {
+				err = fmt.Errorf("db error: %v rollback error: %v", err, rerr)
+			}
 		} else {
-			if txerr := tx.Commit(); txerr != nil {
-				err = fmt.Errorf("db error: %v commit error: %v", err, txerr)
+			if cerr := tx.Commit(); cerr != nil {
+				err = fmt.Errorf("commit error: %v", cerr)
 			}
 		}
 	}()
