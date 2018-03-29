@@ -8,16 +8,17 @@ package {{ .PackageName }}
 +---------------------------*/
 
 import (
-"database/sql"
-"database/sql/driver"
-"encoding/json"
-"fmt"
-"log"
-"reflect"
-"strings"
-"time"
+	"context"
+	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
+	"log"
+	"reflect"
+	"strings"
+	"time"
 
-"github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 )
 
 // StdTime provides default SQL TIME format
