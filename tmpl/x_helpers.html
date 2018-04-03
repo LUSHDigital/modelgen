@@ -254,17 +254,21 @@ return n.Time, nil
 
 // UnmarshalJSON for NullTime
 func (n *NullTime) UnmarshalJSON(b []byte) error {
-s := string(b)
-s = strings.Trim(s, `"`)
-tim, err := time.Parse(time.RFC3339, s)
-if err != nil {
-n.Valid = false
-return err
-}
+	s := string(b)
+	s = strings.Trim(s, `"`)
 
-n.Time = tim
-n.Valid = true
-return nil
+	var tim time.Time
+	if !strings.EqualFold(s, "null") {
+		var err error
+		if tim, err = time.Parse(time.RFC3339, s); err != nil {
+			n.Valid = false
+			return err
+		}
+	}
+
+	n.Time = tim
+	n.Valid = true
+	return nil
 }
 
 // Scan for NullTime
