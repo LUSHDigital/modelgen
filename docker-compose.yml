@@ -10,4 +10,4 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     restart: always
     ports:
-      - "3306:3306"
+      - "3306:3307"

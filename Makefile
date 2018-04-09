@@ -6,7 +6,7 @@ test:
 	go test -v ./...
 	docker-compose --no-ansi -f docker-compose.yml up -d --force-recreate
 	while ! docker exec -i modelgen-tests mysql -uroot <<< "select true" | grep TRUE; do sleep 1; done
-	modelgen -c root:@localhost:3306 -d modelgen_tests -p models generate
+	modelgen -c root:@localhost:3307 -d modelgen_tests -p models generate
 	golint -set_exit_status generated_models
 	rm -rf ./generated_models
 clean:
