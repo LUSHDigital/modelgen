@@ -10,6 +10,7 @@ services:
   - docker
 
 before_install:
+  - go get golang.org/x/lint/golint
   - go get github.com/gobuffalo/packr/...
 
 install:
