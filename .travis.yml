@@ -1,9 +1,13 @@
+sudo: required
 language: go
 
 go:
   - "1.9"
   - "1.10"
   - master
+
+services:
+  - docker
 
 before_install:
   - go get github.com/gobuffalo/packr/...
