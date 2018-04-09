@@ -63,6 +63,7 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
+	database.Close()
 }
 
 var formatErr = errors.New("invalid connection string format")
