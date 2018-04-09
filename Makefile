@@ -6,7 +6,6 @@ test:
 	go test -v ./...
 	go build
 	docker-compose --no-ansi -f docker-compose.yml up -d --force-recreate
-	sleep 10
 	./modelgen -c root:@localhost:3307 -d modelgen_tests -p models generate
 	golint -set_exit_status generated_models
 	rm -rf modelgen

@@ -11,3 +11,9 @@ services:
     restart: always
     ports:
       - "3307:3306"
+  wait:
+    image: waisbrot/wait
+    links:
+      - mysql
+    environment:
+      - TARGETS=mysql:3306
