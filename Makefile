@@ -5,8 +5,7 @@ all: test install post
 test:
 	go test -v ./...
 	docker-compose --no-ansi -f docker-compose.yml up -d --force-recreate
-	#!/bin/bash
-	while ! docker exec -i modelgen-tests mysql -uroot <<< "select true" | grep TRUE; do sleep 1; done
+	sleep 10
 	modelgen -c root:@localhost:3307 -d modelgen_tests -p models generate
 	golint -set_exit_status generated_models
 	rm -rf ./generated_models
