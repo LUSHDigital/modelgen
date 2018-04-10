@@ -12,8 +12,8 @@ services:
     ports:
       - "3307:3306"
   wait:
-    image: waisbrot/wait
+    image: n3llyb0y/wait
     links:
       - mysql
     environment:
-      - TARGETS=mysql:3306
+      - PORTS= "3306"
