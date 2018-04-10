@@ -1,3 +1,4 @@
+sudo: required
 language: go
 
 go:
@@ -5,8 +6,14 @@ go:
   - "1.10"
   - master
 
+services:
+  - docker
+
 before_install:
+  - go get golang.org/x/lint/golint
   - go get github.com/gobuffalo/packr/...
 
 install:
-  - make
+  - make test-ci
+  - make install
+  - make post

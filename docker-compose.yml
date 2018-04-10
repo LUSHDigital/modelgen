@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  mysql:
+    container_name: modelgen-tests
+    image: mysql
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    restart: always
+    ports:
+      - "3307:3306"
+  wait:
+    image: n3llyb0y/wait
+    links:
+      - mysql
+    environment:
+      - PORTS= "3306"

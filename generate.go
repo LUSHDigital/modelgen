@@ -8,13 +8,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/LUSHDigital/modelgen/sqlfmt"
 	"github.com/LUSHDigital/modelgen/sqltypes"
 	"github.com/LUSHDigital/modelgen/tmpl"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 func generate(cmd *cobra.Command, args []string) {
