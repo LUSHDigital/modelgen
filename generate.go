@@ -82,7 +82,7 @@ func writeModels(models []tmpl.TmplStruct, t *template.Template) {
 func getTables() (tables []string) {
 	const stmt = `SELECT table_name
 				  FROM information_schema.columns AS c
-				  WHERE c.table_schema = $1
+				  WHERE c.table_catalog = $1
       			  AND column_name = 'id'`
 
 	rows, err := database.Query(stmt, *dbName)
