@@ -3,7 +3,7 @@ version: '2'
 services:
   mysql:
     container_name: modelgen-tests
-    image: mysql
+    image: mysql:5.7
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
@@ -11,9 +11,3 @@ services:
     restart: always
     ports:
       - "3307:3306"
-  wait:
-    image: n3llyb0y/wait
-    links:
-      - mysql
-    environment:
-      - PORTS= "3306"
