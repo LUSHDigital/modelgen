@@ -1,4 +1,4 @@
-# Modelgen [![](https://api.travis-ci.org/LUSHDigital/modelgen.svg?branch=master)](https://api.travis-ci.org/LUSHDigital/modelgen.svg?branch=master)
+# Modelgen [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/LUSHDigital/modelgen/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/modelgen)](https://goreportcard.com/report/github.com/LUSHDigital/modelgen) [![Build Status](https://travis-ci.org/LUSHDigital/modelgen.svg?branch=master)](https://travis-ci.org/LUSHDigital/modelgen)
 
 Modelgen generates working database interaction code from reading your MySQL / MariaDB database.
 
