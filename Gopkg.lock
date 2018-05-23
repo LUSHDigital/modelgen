@@ -2,22 +2,10 @@
 
 
 [[projects]]
-  name = "github.com/go-sql-driver/mysql"
-  packages = ["."]
-  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
-  version = "v1.3"
-
-[[projects]]
-  name = "github.com/gobuffalo/envy"
-  packages = ["."]
-  revision = "e613c80275b86293880eddeb27417c9a7c670ff3"
-  version = "v1.3.0"
-
-[[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "64c3dd439b5efc5cd9fb69a8fb209a03cd7c5b86"
-  version = "v1.10.3"
+  revision = "7f4074995d431987caaa35088199f13c44b24440"
+  version = "v1.11.0"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -26,16 +14,13 @@
   version = "v1.0"
 
 [[projects]]
-  name = "github.com/joho/godotenv"
-  packages = ["."]
-  revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
-  version = "v1.2.0"
-
-[[projects]]
   branch = "master"
-  name = "github.com/mitchellh/go-homedir"
-  packages = ["."]
-  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid"
+  ]
+  revision = "0677bdde3e15a69060c33fac24fd53044b4694b8"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -46,18 +31,18 @@
 [[projects]]
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "7b2c5ac9fc04fc5efafb60700713d4fa609b777b"
-  version = "v0.0.1"
+  revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
+  version = "v0.0.3"
 
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
-  version = "v1.0.0"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b738774e1f55a25c3bc20d02c726869a00555ab0133e468209b45aad6c990b60"
+  inputs-digest = "57c1ef36e198e200321b3da80856f648ce2a56738e2a33df01fca97affb4b99e"
   solver-name = "gps-cdcl"
   solver-version = 1

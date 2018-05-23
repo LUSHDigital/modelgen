@@ -1,14 +1,13 @@
 package builder
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"bytes"
-	"compress/gzip"
 
 	"github.com/pkg/errors"
 )
@@ -38,6 +37,8 @@ func (b *box) Walk(root string) error {
 			Name: name,
 		}
 
+		DebugLog("packing file %s\n", f.Name)
+
 		bb, err := ioutil.ReadFile(path)
 		if err != nil {
 			return errors.WithStack(err)
@@ -54,6 +55,7 @@ func (b *box) Walk(root string) error {
 		}
 		f.Contents = strings.Replace(string(bb), "\"", "\\\"", -1)
 
+		DebugLog("packed file %s\n", f.Name)
 		b.Files = append(b.Files, f)
 		return nil
 	})

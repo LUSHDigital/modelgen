@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 )
 
 // StdTime provides default SQL TIME format
@@ -43,7 +43,7 @@ type NullBool sql.NullBool
 type NullInt64 sql.NullInt64
 
 // NullTime aliases sql.NullTime
-type NullTime mysql.NullTime
+type NullTime pq.NullTime
 
 // RawJSON aliases json.RawMessage
 type RawJSON json.RawMessage
@@ -269,7 +269,7 @@ func (n *NullTime) Scan(src interface{}) error {
 	// Set initial state for subsequent scans.
 	n.Valid = false
 
-	var a mysql.NullTime
+	var a pq.NullTime
 	if err := a.Scan(src); err != nil {
 		return err
 	}
@@ -606,8 +606,8 @@ func ToNullBool(b *bool) NullBool {
 // ToNullTime creates a new NullTime
 func ToNullTime(t time.Time) NullTime {
 	if t == emptyTime {
-		return NullTime(mysql.NullTime{Valid: false})
+		return NullTime(pq.NullTime{Valid: false})
 	}
-	return NullTime(mysql.NullTime{Time: t, Valid: true})
+	return NullTime(pq.NullTime{Time: t, Valid: true})
 }
 {{end}}

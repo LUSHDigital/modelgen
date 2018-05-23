@@ -2,6 +2,7 @@ package packr
 
 import (
 	"bytes"
+	"compress/gzip"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -10,9 +11,6 @@ import (
 	"runtime"
 	"strings"
 
-	"compress/gzip"
-
-	"github.com/gobuffalo/envy"
 	"github.com/pkg/errors"
 )
 
@@ -34,12 +32,13 @@ func NewBox(path string) Box {
 	cov := filepath.Join("_test", "_obj_test")
 	cd = strings.Replace(cd, string(filepath.Separator)+cov, "", 1)
 	if !filepath.IsAbs(cd) && cd != "" {
-		cd = filepath.Join(envy.GoPath(), "src", cd)
+		cd = filepath.Join(GoPath(), "src", cd)
 	}
 
 	return Box{
 		Path:       path,
 		callingDir: cd,
+		data:       map[string][]byte{},
 	}
 }
 
@@ -50,6 +49,14 @@ type Box struct {
 	callingDir  string
 	data        map[string][]byte
 	directories map[string]bool
+}
+
+func (b Box) AddString(path string, t string) {
+	b.AddBytes(path, []byte(t))
+}
+
+func (b Box) AddBytes(path string, t []byte) {
+	b.data[path] = t
 }
 
 // String of the file asked for or an empty string.
@@ -104,6 +111,9 @@ func (b Box) decompress(bb []byte) []byte {
 }
 
 func (b Box) find(name string) (File, error) {
+	if bb, ok := b.data[name]; ok {
+		return newVirtualFile(name, bb), nil
+	}
 	if b.directories == nil {
 		b.indexDirectories()
 	}
@@ -148,7 +158,10 @@ func (b Box) Walk(wf WalkFunc) error {
 			return errors.WithStack(err)
 		}
 		return filepath.Walk(base, func(path string, info os.FileInfo, err error) error {
-			cleanName := strings.TrimPrefix(path, base)
+			cleanName, err := filepath.Rel(base, path)
+			if err != nil {
+				cleanName = strings.TrimPrefix(path, base)
+			}
 			cleanName = filepath.ToSlash(filepath.Clean(cleanName))
 			cleanName = strings.TrimPrefix(cleanName, "/")
 			cleanName = filepath.FromSlash(cleanName)
@@ -185,7 +198,7 @@ func (b Box) Open(name string) (http.File, error) {
 func (b Box) List() []string {
 	var keys []string
 
-	if b.data == nil {
+	if b.data == nil || len(b.data) == 0 {
 		b.Walk(func(path string, info File) error {
 			finfo, _ := info.FileInfo()
 			if !finfo.IsDir() {
@@ -204,7 +217,7 @@ func (b Box) List() []string {
 func (b *Box) indexDirectories() {
 	b.directories = map[string]bool{}
 	if _, ok := data[b.Path]; ok {
-		for name, _ := range data[b.Path] {
+		for name := range data[b.Path] {
 			prefix, _ := path.Split(name)
 			// Even on Windows the suffix appears to be a /
 			prefix = strings.TrimSuffix(prefix, "/")
