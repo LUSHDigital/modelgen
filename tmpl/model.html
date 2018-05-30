@@ -12,7 +12,6 @@ package {{ .PackageName }}
 
 import (
 "fmt"
-"database/sql"
     {{ range $k, $v:= .Model.Imports }}
     "{{$k}}"
     {{- end }}
@@ -28,17 +27,17 @@ limit int
 }
 
 // Insert a new {{.Model.Name}} row in the {{.Model.TableName}} table
-func ({{.Receiver}} *{{.Model.Name}}) Insert(db *sql.DB) (lastInsertID int64, err error) {
+func ({{.Receiver}} *{{.Model.Name}}) Insert(qu Queryer) (lastInsertID int64, err error) {
     const stmt = `INSERT INTO "{{.Model.TableName}}" ({{.Model.Fields | insert_fields}}) VALUES ({{.Model.Fields | insert_values}}) RETURNING id`
-    row := db.QueryRow(stmt, {{ . | insert_args }})
+    row := qu.QueryRow(stmt, {{ . | insert_args }})
     err = row.Scan(&lastInsertID)
 	return
 }
 
 // Update an existing {{.Model.Name}} row in the {{.Model.TableName}} table.
-func ({{.Receiver}} *{{.Model.Name}}) Update(db *sql.DB, id int64) (int64, error) {
+func ({{.Receiver}} *{{.Model.Name}}) Update(qu Queryer, id int64) (int64, error) {
     const stmt = `UPDATE "{{.Model.TableName}}" SET {{ . | update_values }} WHERE id = {{ . | update_values_size }}`
-    result, err := db.Exec(stmt, {{ . | update_args }} , id)
+    result, err := qu.Exec(stmt, {{ . | update_args }} , id)
     if err != nil {
         return 0, err
     }
@@ -46,14 +45,14 @@ func ({{.Receiver}} *{{.Model.Name}}) Update(db *sql.DB, id int64) (int64, error
 }
 
 // Find an existing {{.Model.Name}} row in the {{.Model.TableName}} table
-func ({{.Receiver}} *{{.Model.Name}}) Find(db *sql.DB, id int64) error {
+func ({{.Receiver}} *{{.Model.Name}}) Find(qu Queryer, id int64) error {
     const stmt = `SELECT * FROM "{{.Model.TableName}}" WHERE id = $1`
-    row := db.QueryRow(stmt, id)
+    row := qu.QueryRow(stmt, id)
     return row.Scan({{ . | scan_fields}})
 }
 
 // Load all, or a subset of {{.Model.Name}} rows from the {{.Model.TableName}} table
-func ({{.Receiver}} *{{.Model.Name}}) Load(db *sql.DB) (set []{{.Model.Name}}, err error) {
+func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, err error) {
     stmt := `SELECT * FROM "{{.Model.TableName}}"`
 
     if {{.Receiver}}.limit == 0 && {{.Receiver}}.offset > 0 {
@@ -70,7 +69,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Load(db *sql.DB) (set []{{.Model.Name}}, e
         {{.Receiver}}.limit = 0
         {{.Receiver}}.offset = 0
     }()
-    rows, err := db.Query(stmt)
+    rows, err := qu.Query(stmt)
     if err != nil {
         return
     }
@@ -86,9 +85,9 @@ func ({{.Receiver}} *{{.Model.Name}}) Load(db *sql.DB) (set []{{.Model.Name}}, e
 }
 
 // Delete an existing {{.Model.Name}} row from the {{.Model.TableName}} table
-func ({{.Receiver}} *{{.Model.Name}}) Delete(db *sql.DB, id int64) (rowsAffected int64, err error) {
+func ({{.Receiver}} *{{.Model.Name}}) Delete(qu Queryer, id int64) (rowsAffected int64, err error) {
     const stmt = `DELETE FROM "{{.Model.TableName}}" WHERE id = $1`
-    result, err := db.Exec(stmt, id)
+    result, err := qu.Exec(stmt, id)
 	if err != nil {
 		return
 	}
@@ -97,9 +96,9 @@ func ({{.Receiver}} *{{.Model.Name}}) Delete(db *sql.DB, id int64) (rowsAffected
 }
 
 // Count the number of rows from the {{.Model.TableName}} table
-func({{.Receiver}} *{{.Model.Name}}) Count(db *sql.DB) (count int64, err error) {
+func({{.Receiver}} *{{.Model.Name}}) Count(qu Queryer) (count int64, err error) {
     const stmt = `SELECT COUNT(*) FROM "{{.Model.TableName}}"`
-    row := db.QueryRow(stmt)
+    row := qu.QueryRow(stmt)
     if err = row.Scan(&count); err != nil {
         return
     }
@@ -109,9 +108,9 @@ func({{.Receiver}} *{{.Model.Name}}) Count(db *sql.DB) (count int64, err error) 
 // Exists checks for the items existence in the database, based on it's id.
 // An error will only be returned if a SQL related failure happens.
 // In all other cases, a bool and nil will return.
-func({{.Receiver}} *{{.Model.Name}}) Exists(db *sql.DB, id int64) (exists bool, err error) {
+func({{.Receiver}} *{{.Model.Name}}) Exists(qu Queryer, id int64) (exists bool, err error) {
     const stmt = `SELECT EXISTS(SELECT 1 FROM "{{.Model.TableName}}" WHERE id = $1 LIMIT 1) AS "exists"`
-    row := db.QueryRow(stmt, id)
+    row := qu.QueryRow(stmt, id)
     if err = row.Scan(&exists); err != nil {
         return
     }

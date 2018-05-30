@@ -19,7 +19,7 @@ var FuncMap = template.FuncMap{
 func GetInsertFields(fields []TmplField) string {
 	var parts []string
 	for _, fl := range fields {
-		if fl.ColumnName == "id" {
+		if fl.ColumnName == "id" || fl.ColumnName == "created_at" {
 			continue
 		}
 		parts = append(parts, `"`+fl.ColumnName+`"`)
@@ -29,15 +29,14 @@ func GetInsertFields(fields []TmplField) string {
 
 func GetInsertValues(fields []TmplField) string {
 	var parts []string
-	for i, fl := range fields {
+	i := 1
+	for _, fl := range fields {
 		switch fl.ColumnName {
-		case "id":
-			continue
-		case "created_at":
-			parts = append(parts, "NOW()")
+		case "id", "created_at":
 			continue
 		default:
 			parts = append(parts, fmt.Sprintf("$%d", i))
+			i++
 		}
 	}
 	return strings.Join(parts, ", ")

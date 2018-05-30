@@ -26,6 +26,18 @@ const StdTime = "15:04:05"
 // null for insertion into the database.
 var emptyTime = time.Time{}
 
+/********
+* Types *
+********/
+
+// Queryer allows sql.DB and sql.Tx to be used interchangeably, allowing you
+// to use any of the model methods inside transactions or standalone calls.
+type Queryer interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
 /*-------------+
 | Type aliases |
 +-------------*/
