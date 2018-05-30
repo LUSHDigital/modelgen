@@ -167,7 +167,7 @@ func TestNullString_Scan(t *testing.T) {
 			if err := tt.n.Scan(tt.src); (err != nil) != tt.wantErr {
 				t.Errorf("NullString.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if tt.n.Valid == false && tt.src != nil {
+			if !tt.n.Valid && tt.src != nil {
 				t.Errorf("should return null")
 			}
 			if tt.n.Valid && tt.src != tt.n.String {
@@ -343,7 +343,7 @@ func TestNullBool_Scan(t *testing.T) {
 			if err := tt.n.Scan(tt.src); (err != nil) != tt.wantErr {
 				t.Errorf("NullBool.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if tt.n.Valid == false && tt.src != nil {
+			if !tt.n.Valid && tt.src != nil {
 				t.Errorf("should return null")
 			}
 			if tt.n.Valid && tt.src != tt.n.Bool {
@@ -508,7 +508,7 @@ func TestNullTime_Scan(t *testing.T) {
 			if err := tt.n.Scan(tt.src); (err != nil) != tt.wantErr {
 				t.Errorf("NullTime.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if tt.n.Valid == false && tt.src != nil {
+			if !tt.n.Valid && tt.src != nil {
 				t.Errorf("should return null")
 			}
 			if tt.n.Valid && tt.src != tt.n.Time {
@@ -666,7 +666,7 @@ func TestNullInt64_Scan(t *testing.T) {
 			if err := tt.n.Scan(tt.src); (err != nil) != tt.wantErr {
 				t.Errorf("NullInt64.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if tt.n.Valid == false && tt.src != nil {
+			if !tt.n.Valid && tt.src != nil {
 				t.Errorf("should return null")
 			}
 			if tt.n.Valid && tt.src != tt.n.Int64 {
@@ -828,7 +828,7 @@ func TestNullFloat64_Scan(t *testing.T) {
 			if err := tt.n.Scan(tt.src); (err != nil) != tt.wantErr {
 				t.Errorf("NullFloat64.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if tt.n.Valid == false && tt.src != nil {
+			if !tt.n.Valid && tt.src != nil {
 				t.Errorf("should return null")
 			}
 			if tt.n.Valid && tt.src != tt.n.Float64 {
