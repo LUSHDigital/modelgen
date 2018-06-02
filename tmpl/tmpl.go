@@ -10,6 +10,7 @@ var FuncMap = template.FuncMap{
 	"insert_fields":      GetInsertFields,
 	"insert_values":      GetInsertValues,
 	"insert_args":        GetInsertArgs,
+	"select_fields":      GetSelectFields,
 	"scan_fields":        GetScanFields,
 	"update_args":        GetUpdateArgs,
 	"update_values":      GetUpdateValues,
@@ -54,6 +55,14 @@ func GetInsertArgs(m StructTmplData) string {
 			continue
 		}
 		parts = append(parts, fmt.Sprintf(`%s.%s`, m.Receiver, fl.Name))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func GetSelectFields(m StructTmplData) string {
+	var parts []string
+	for _, fl := range m.Model.Fields {
+		parts = append(parts, fmt.Sprintf(`%s."%s"`, m.Receiver, fl.ColumnName))
 	}
 	return strings.Join(parts, ", ")
 }
