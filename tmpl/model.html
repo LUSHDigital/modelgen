@@ -51,14 +51,14 @@ func ({{.Receiver}} *{{.Model.Name}}) Update(qu Queryer, id int64) (int64, error
 
 // Find an existing {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Find(qu Queryer, id int64) error {
-    const stmt = `SELECT {{ . | select_fields }} FROM "{{.Model.TableName}}" WHERE id = $1`
+    const stmt = `SELECT {{ . | select_fields }} FROM "{{.Model.TableName}}" {{.Receiver}} WHERE id = $1`
     row := qu.QueryRow(stmt, id)
     return row.Scan({{ . | scan_fields}})
 }
 
 // Load all, or a subset of {{.Model.Name}} rows from the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, err error) {
-    stmt := `SELECT {{ . | select_fields }} FROM "{{.Model.TableName}}"`
+    stmt := `SELECT {{ . | select_fields }} FROM "{{.Model.TableName}}" {{.Receiver}}`
 
     if {{.Receiver}}.limit == 0 && {{.Receiver}}.offset > 0 {
         return set, fmt.Errorf("cannot query with offset but no limit")
