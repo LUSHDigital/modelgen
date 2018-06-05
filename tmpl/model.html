@@ -13,6 +13,7 @@ package {{ .PackageName }}
 import (
     "fmt"
     "strconv"
+    "database/sql"
     {{ range $k, $v:= .Model.Imports }}
     "{{$k}}"
     {{- end }}
@@ -27,9 +28,8 @@ offset int
 limit int
 }
 
-var (
-    {{.Model.TableName}}SelectFields = `{{ . | select_fields }}`
-)
+// {{.Model.Name}}SelectFields is a SELECT-friendly list of all fields.
+var {{.Model.Name}}SelectFields = `{{ . | select_fields }}`
 
 // Insert a new {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Insert(qu Queryer) (lastInsertID int64, err error) {
@@ -53,7 +53,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Update(qu Queryer, id int64) (int64, error
 func ({{.Receiver}} *{{.Model.Name}}) Find(qu Queryer, id int64) error {
     const stmt = `SELECT {{ . | select_fields }} FROM "{{.Model.TableName}}" {{.Receiver}} WHERE id = $1`
     row := qu.QueryRow(stmt, id)
-    return row.Scan({{ . | scan_fields}})
+    return {{.Receiver}}.ScanRow(row)
 }
 
 // Load all, or a subset of {{.Model.Name}} rows from the {{.Model.TableName}} table
@@ -80,7 +80,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, e
     }
     defer rows.Close()
         for rows.Next() {
-            if err = rows.Scan({{. | scan_fields}}); err != nil {
+            if err = {{.Receiver}}.ScanRows(rows); err != nil {
             return
         }
         set = append(set, *{{.Receiver}})
@@ -120,6 +120,16 @@ func({{.Receiver}} *{{.Model.Name}}) Exists(qu Queryer, id int64) (exists bool, 
         return
     }
     return
+}
+
+// ScanRows scans columns into struct fields from a db.Query().
+func ({{.Receiver}} *{{.Model.Name}}) ScanRows(rows *sql.Rows) error {
+    return rows.Scan({{. | scan_fields}});
+}
+
+// ScanRow scans columns into struct fields from a db.QueryRow().
+func ({{.Receiver}} *{{.Model.Name}}) ScanRow(row *sql.Row) error {
+    return row.Scan({{. | scan_fields}});
 }
 
 // TableName returns the table name
