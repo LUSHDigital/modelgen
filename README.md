@@ -5,12 +5,13 @@ Modelgen generates working database interaction code from reading your MySQL / M
 ## Install:
 
 ```bash
-curl https://raw.githubusercontent.com/LUSHDigital/modelgen/master/install.sh | sh
+brew tap lushdigital/tools
+brew install modelgen
 ```
 
 This will install `modelgen` under `/usr/local/bin`.
 
-If you want to uninstall it, simply delete it.
+If you want to uninstall it, simply delete it, or run `brew uninstall modelgen`
 
 ## Conventions:
 
