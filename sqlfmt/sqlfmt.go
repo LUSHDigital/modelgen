@@ -25,8 +25,8 @@ var acronyms = [...]string{
 	"bsd",   // Berkeley Software Distribution (originally Berkeley Source Distribution)
 
 	"ccitt",  // Comité Consultatif International Téléphonique et Télégraphique
-	"cd",     // change directory
-	"cd",     // compact disc
+	"cd",     // change directory | compact disc
+	"cdn",    // content delivery network
 	"cdrom",  // compact disc read-only memory
 	"cjkv",   // Chinese Japanese Korean Vietnamese
 	"cldr",   // common locale data repository
