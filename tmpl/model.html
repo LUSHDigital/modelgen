@@ -88,10 +88,11 @@ func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, e
     }
     defer rows.Close()
         for rows.Next() {
+            var {{.Receiver}} {{.Model.Name}}
             if err = rows.Scan({{. | scan_fields}}); err != nil {
             return
         }
-        set = append(set, *{{.Receiver}})
+        set = append(set, {{.Receiver}})
     }
 
     return
