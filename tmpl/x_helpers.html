@@ -271,21 +271,31 @@ func (n NullTime) Value() (driver.Value, error) {
 
 // UnmarshalJSON for NullTime
 func (n *NullTime) UnmarshalJSON(b []byte) error {
-	s := string(b)
-	s = strings.Trim(s, `"`)
+    s := string(b)
+    s = strings.Trim(s, `"`)
 
-	var tim time.Time
-	if !strings.EqualFold(s, "null") {
-		var err error
-		if tim, err = time.Parse(time.RFC3339, s); err != nil {
-			n.Valid = false
-			return err
-		}
-	}
+    var (
+        zeroTime time.Time
+        tim      time.Time
+        err      error
+    )
 
-	n.Time = tim
-	n.Valid = true
-	return nil
+    if strings.EqualFold(s, "null") {
+        return nil
+    }
+
+    if tim, err = time.Parse(time.RFC3339, s); err != nil {
+        n.Valid = false
+        return err
+    }
+
+    if tim == zeroTime {
+        return nil
+    }
+
+    n.Time = tim
+    n.Valid = true
+    return nil
 }
 
 // Scan for NullTime
