@@ -332,9 +332,9 @@ func (n RawJSON) Value() (driver.Value, error) {
 // UnmarshalJSON for NullString
 func (n *RawJSON) UnmarshalJSON(b []byte) error {
 	var a json.RawMessage
-  if err := json.Unmarshal(b, &a); err != nil {
-    return err
-  }
+	if err := json.Unmarshal(b, &a); err != nil {
+		return err
+	}
 	c := RawJSON(a)
 	*n = c
 	return nil
