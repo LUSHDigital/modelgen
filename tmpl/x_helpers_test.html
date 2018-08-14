@@ -981,4 +981,31 @@ func TestToNullTime(t *testing.T) {
 		t.Errorf("expected %v, got %v", tim, bb.Time)
 	}
 }
+
+func TestRawJSON_MarshalJSON(t *testing.T) {
+	cases := []struct {
+		name string
+		data []byte
+		exp  string
+	}{
+		{
+			name: "empty data",
+			data: []byte{},
+			exp:  "null",
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			rj := RawJSON(c.data)
+			b, err := rj.MarshalJSON()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if string(b) != c.exp {
+				t.Fatalf("\nexp: %q\ngot: %q", c.exp, string(b))
+			}
+		})
+	}
+}
 {{end}}
