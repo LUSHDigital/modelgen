@@ -321,6 +321,9 @@ func (n *NullTime) Scan(src interface{}) error {
 
 // MarshalJSON for NullString
 func (n RawJSON) MarshalJSON() ([]byte, error) {
+	if len(n) == 0 {
+		return []byte("null"), nil
+	}
 	a := json.RawMessage(n)
 	return a.MarshalJSON()
 }
