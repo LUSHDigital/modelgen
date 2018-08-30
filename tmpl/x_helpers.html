@@ -44,7 +44,6 @@ type Queryer interface {
 	Query(query string, args ...interface{}) (*sql.Rows, error)
 	QueryRow(query string, args ...interface{}) *sql.Row
 	Exec(query string, args ...interface{}) (sql.Result, error)
-	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
 }
 
 /*-------------+
@@ -193,6 +192,9 @@ func (n *NullInt64) UnmarshalJSON(b []byte) error {
 
 // Scan for NullInt64
 func (n *NullInt64) Scan(src interface{}) error {
+	// Set initial state for subsequent scans.
+	n.Valid = false
+
 	var a sql.NullInt64
 	if err := a.Scan(src); err != nil {
 		return err
@@ -415,7 +417,7 @@ type TxOptions struct {
 //  	Isolation: sql.LevelSerializable,
 //  	ReadOnly:  false,
 //  }
-func ExecuteTransaction(qu Queryer, opt *TxOptions, actions func(*sql.Tx) error) (err error) {
+func ExecuteTransaction(db *sql.DB, opt *TxOptions, actions func(*sql.Tx) error) (err error) {
 	// Provide safe defaults in case none were given.
 	if opt == nil {
 		opt = &TxOptions{
@@ -432,7 +434,7 @@ func ExecuteTransaction(qu Queryer, opt *TxOptions, actions func(*sql.Tx) error)
 	defer cancel()
 
 	var tx *sql.Tx
-	if tx, err = qu.BeginTx(ctx, &sql.TxOptions{
+	if tx, err = db.BeginTx(ctx, &sql.TxOptions{
 		Isolation: opt.Isolation,
 		ReadOnly:  opt.ReadOnly,
 	}); err != nil {
