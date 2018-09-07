@@ -2,6 +2,7 @@ OLD_SHA:=$(shell shasum -a 256 main-packr.go | cut -d' ' -f1)
 NEW_SHA= $(shell shasum -a 256 main-packr.go | cut -d' ' -f1)
 
 all: test install post
+
 test:
 	go test -v ./...
 	go build
@@ -11,6 +12,7 @@ test:
 	golint -set_exit_status generated_models
 	rm -rf modelgen
 	rm -rf ./generated_models
+
 test-ci:
 	go test -v ./...
 	go build
@@ -20,10 +22,13 @@ test-ci:
 	golint -set_exit_status generated_models
 	rm -rf modelgen
 	rm -rf ./generated_models
+
 clean:
 	docker rm -f modelgen-tests
+
 install:
 	packr && go install
+	
 post:
 	@if [ "$(NEW_SHA)" != "$(OLD_SHA)" ]; then\
         echo "sha comparison failed on main-packr.go";\

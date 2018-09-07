@@ -1,7 +1,4 @@
-package tmpl
-
-// TmplStructs is a collection on TmplStruct
-type TmplStructs []TmplStruct
+package generation
 
 // TmplStruct defines the table data to pass to the models
 type TmplStruct struct {
@@ -12,7 +9,7 @@ type TmplStruct struct {
 }
 
 // TmplField defines a table field template
-type TmplField struct {
+type Field struct {
 	Name       string
 	Type       string
 	ColumnName string

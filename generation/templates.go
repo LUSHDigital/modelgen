@@ -1,22 +1,28 @@
-package tmpl
+package generation
 
 import (
 	"fmt"
 	"html/template"
 	"strings"
+
+	"github.com/gobuffalo/packr"
 )
 
+func init() {
+	packr.NewBox("../templates")
+}
+
 var FuncMap = template.FuncMap{
-	"insert_fields": GetInsertFields,
-	"insert_values": GetInsertValues,
-	"insert_args":   GetInsertArgs,
-	"scan_fields":   GetScanFields,
-	"update_args":   GetUpdateArgs,
-	"update_values": GetUpdateValues,
-	"upsert_fields": GetUpsertFields,
-	"upsert_values": GetUpsertValues,
+	"insert_fields":       GetInsertFields,
+	"insert_values":       GetInsertValues,
+	"insert_args":         GetInsertArgs,
+	"scan_fields":         GetScanFields,
+	"update_args":         GetUpdateArgs,
+	"update_values":       GetUpdateValues,
+	"upsert_fields":       GetUpsertFields,
+	"upsert_values":       GetUpsertValues,
 	"upsert_on_duplicate": GetUpsertOnDuplicate,
-	"upsert_args": GetUpsertArgs,
+	"upsert_args":         GetUpsertArgs,
 }
 
 func GetInsertFields(fields []TmplField) string {
