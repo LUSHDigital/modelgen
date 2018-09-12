@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/nicklanng/modelgen/model"
-	"github.com/nicklanng/modelgen/scanning"
+	"github.com/nicklanng/modelgen/sqlfmt"
 	"github.com/nicklanng/modelgen/templates"
 )
 
@@ -105,13 +106,13 @@ func (m *MySQL) QueryStructure(conn *sql.DB) ([]model.EntityDescriptor, error) {
 	}
 
 	var structs []model.EntityDescriptor
-	for tableName := range tables {
+	for tableName, comment := range tables {
 		explanations, err := m.explainTable(conn, tableName)
 		if err != nil {
 			return nil, err
 		}
 
-		s, err := m.parseExplanation(tableName, explanations)
+		s, err := m.parseExplanation(tableName, comment, explanations)
 		if err != nil {
 			return nil, err
 		}
@@ -169,28 +170,29 @@ func (m *MySQL) explainTable(conn *sql.DB, table string) ([]mySQLExplain, error)
 	return tableExplanations, nil
 }
 
-func (m *MySQL) parseExplanation(table string, explanations []mySQLExplain) (model.EntityDescriptor, error) {
+func (m *MySQL) parseExplanation(table, comment string, explanations []mySQLExplain) (model.EntityDescriptor, error) {
 	t := model.EntityDescriptor{
-		Name:      scanning.ToPascalCase(table),
+		Name:      sqlfmt.ToPascalCase(table),
 		TableName: table,
 		Imports:   make(map[string]struct{}),
+		Comment:   comment,
 	}
 
 	for _, expl := range explanations {
-		typ, err := scanning.MapType(*expl.Type, *expl.Null, mysqlDataTypes)
+		typ, err := sqlfmt.MapType(*expl.Type, *expl.Null, mysqlDataTypes)
 		if err != nil {
 			return model.EntityDescriptor{}, err
 		}
 
 		f := model.Field{
-			Name:       scanning.ToPascalCase(*expl.Field),
+			Name:       sqlfmt.ToPascalCase(*expl.Field),
 			Type:       typ,
 			ColumnName: strings.ToLower(*expl.Field),
 			Nullable:   *expl.Null == "YES",
 		}
 
 		t.Fields = append(t.Fields, f)
-		if imp, ok := scanning.NeedsImport(f.Type); ok {
+		if imp, ok := sqlfmt.NeedsImport(f.Type); ok {
 			t.Imports[imp] = struct{}{}
 		}
 	}
@@ -216,4 +218,44 @@ func (m *MySQL) FillTemplates(conn *sql.DB, models []model.EntityDescriptor, out
 	}
 
 	return nil
+}
+
+func (m *MySQL) QueryMigrations(conn *sql.DB, models []model.EntityDescriptor) ([]model.Migration, error) {
+	var (
+		table      string
+		upQuery    string
+		downQuery  string
+		row        *sql.Row
+		order      int
+		migrations []model.Migration
+		err        error
+	)
+
+	migrations = []model.Migration{}
+
+	for i := range models {
+		if row = conn.QueryRow("SHOW CREATE TABLE " + models[i].TableName); err != nil {
+			return nil, err
+		}
+		row.Scan(&table, &upQuery)
+
+		if order, err = sqlfmt.GetOrderFromComment(models[i].Comment); err != nil {
+			return nil, err
+		}
+
+		downQuery = fmt.Sprintf("DROP TABLE IF EXISTS `%s`", models[i].TableName)
+
+		migrations = append(migrations, model.Migration{
+			TableName: models[i].TableName,
+			Up:        upQuery,
+			Down:      downQuery,
+			Order:     order,
+		})
+	}
+
+	sort.Slice(migrations, func(i, j int) bool {
+		return migrations[i].Order < migrations[j].Order
+	})
+
+	return migrations, nil
 }

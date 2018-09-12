@@ -1,4 +1,4 @@
-package scanning
+package sqlfmt
 
 import (
 	"fmt"
@@ -70,4 +70,27 @@ func shouldCapitilize(word string) string {
 		}
 	}
 	return word
+}
+
+func GetOrderFromComment(comment string) (int, error) {
+	var (
+		parts []string
+		order int
+		err   error
+	)
+
+	if !strings.HasPrefix(comment, "modelgen") {
+		return 0, nil
+	}
+
+	parts = strings.SplitN(comment, ":", 2)
+	if len(parts) != 2 {
+		return 0, nil
+	}
+
+	if order, err = strconv.Atoi(parts[1]); err != nil {
+		return 0, fmt.Errorf("could not parse id comment [%v], make sure to only use numbers in order comments", parts[1])
+	}
+
+	return order, nil
 }

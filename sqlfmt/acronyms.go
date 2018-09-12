@@ -1,4 +1,4 @@
-package scanning
+package sqlfmt
 
 var acronyms = [...]string{
 	"amd",     // Advanced Micro Devices

@@ -29,10 +29,18 @@ type EntityDescriptor struct {
 	TableName string
 	Fields    []Field
 	Imports   map[string]struct{}
+	Comment   string
 }
 
 type TemplateData struct {
 	Model       EntityDescriptor
 	Receiver    string
 	PackageName string
+}
+
+type Migration struct {
+	TableName string
+	Up        string
+	Down      string
+	Order     int
 }
