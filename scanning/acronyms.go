@@ -1,4 +1,4 @@
-package scanner
+package scanning
 
 var acronyms = [...]string{
 	"amd",     // Advanced Micro Devices

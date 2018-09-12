@@ -1,4 +1,4 @@
-package scanner
+package connectors
 
 import (
 	"database/sql"
@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/nicklanng/modelgen/model"
+	"github.com/nicklanng/modelgen/scanning"
+	"github.com/nicklanng/modelgen/templates"
 )
 
 type mySQLExplain struct {
@@ -59,12 +61,11 @@ var mysqlDataTypes = map[string]model.SQLType{
 }
 
 type MySQL struct {
-	username   string
-	password   string
-	host       string
-	port       string
-	database   string
-	connection *sql.DB
+	username string
+	password string
+	host     string
+	port     string
+	database string
 }
 
 func NewMySQL(username, password, host, port, database string) *MySQL {
@@ -77,26 +78,24 @@ func NewMySQL(username, password, host, port, database string) *MySQL {
 	}
 }
 
-func (m *MySQL) Connect() error {
+func (m *MySQL) Connect() (*sql.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", m.username, m.password, m.host, m.port, m.database)
 
 	conn, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// check for a valid connection
 	if err := conn.Ping(); err != nil {
-		return err
+		return nil, err
 	}
 
-	m.connection = conn
-
-	return nil
+	return conn, nil
 }
 
-func (m *MySQL) QueryStructure() ([]model.EntityDescriptor, error) {
-	tables, err := m.queryTables()
+func (m *MySQL) QueryStructure(conn *sql.DB) ([]model.EntityDescriptor, error) {
+	tables, err := m.queryTables(conn)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,7 @@ func (m *MySQL) QueryStructure() ([]model.EntityDescriptor, error) {
 
 	var structs []model.EntityDescriptor
 	for tableName := range tables {
-		explanations, err := m.explainTable(tableName)
+		explanations, err := m.explainTable(conn, tableName)
 		if err != nil {
 			return nil, err
 		}
@@ -123,7 +122,7 @@ func (m *MySQL) QueryStructure() ([]model.EntityDescriptor, error) {
 	return structs, nil
 }
 
-func (m *MySQL) queryTables() (map[string]string, error) {
+func (m *MySQL) queryTables(conn *sql.DB) (map[string]string, error) {
 	tables := make(map[string]string)
 
 	stmt := `SELECT table_name, column_comment
@@ -132,7 +131,7 @@ func (m *MySQL) queryTables() (map[string]string, error) {
 			 AND c.table_schema = ?
 		     AND column_name = "id"`
 
-	rows, err := m.connection.Query(stmt, m.database)
+	rows, err := conn.Query(stmt, m.database)
 	if err != nil {
 		return nil, err
 	}
@@ -150,10 +149,10 @@ func (m *MySQL) queryTables() (map[string]string, error) {
 	return tables, nil
 }
 
-func (m *MySQL) explainTable(table string) ([]mySQLExplain, error) {
+func (m *MySQL) explainTable(conn *sql.DB, table string) ([]mySQLExplain, error) {
 	var tableExplanations []mySQLExplain
 
-	rows, err := m.connection.Query("EXPLAIN " + table)
+	rows, err := conn.Query("EXPLAIN " + table)
 	if err != nil {
 		return nil, err
 	}
@@ -172,29 +171,49 @@ func (m *MySQL) explainTable(table string) ([]mySQLExplain, error) {
 
 func (m *MySQL) parseExplanation(table string, explanations []mySQLExplain) (model.EntityDescriptor, error) {
 	t := model.EntityDescriptor{
-		Name:      toPascalCase(table),
+		Name:      scanning.ToPascalCase(table),
 		TableName: table,
 		Imports:   make(map[string]struct{}),
 	}
 
 	for _, expl := range explanations {
-		typ, err := mapType(*expl.Type, *expl.Null, mysqlDataTypes)
+		typ, err := scanning.MapType(*expl.Type, *expl.Null, mysqlDataTypes)
 		if err != nil {
 			return model.EntityDescriptor{}, err
 		}
 
 		f := model.Field{
-			Name:       toPascalCase(*expl.Field),
+			Name:       scanning.ToPascalCase(*expl.Field),
 			Type:       typ,
 			ColumnName: strings.ToLower(*expl.Field),
 			Nullable:   *expl.Null == "YES",
 		}
 
 		t.Fields = append(t.Fields, f)
-		if imp, ok := needsImport(f.Type); ok {
+		if imp, ok := scanning.NeedsImport(f.Type); ok {
 			t.Imports[imp] = struct{}{}
 		}
 	}
 
 	return t, nil
+}
+
+func (m *MySQL) FillTemplates(conn *sql.DB, models []model.EntityDescriptor, outputPath, packageName string) error {
+	var err error
+
+	w := templates.NewTemplateWriter("mysql", outputPath, packageName)
+
+	if err = w.WriteModels(models); err != nil {
+		return err
+	}
+
+	if err = w.WriteHelpers(); err != nil {
+		return err
+	}
+
+	if err = w.WriteHelperTests(); err != nil {
+		return err
+	}
+
+	return nil
 }

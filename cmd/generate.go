@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 
-	"github.com/nicklanng/modelgen/scanner"
+	"github.com/nicklanng/modelgen/connectors"
+	"github.com/nicklanng/modelgen/model"
 )
 
 func init() {
@@ -22,9 +23,10 @@ var generateCmd = &cobra.Command{
 
 func generate(cmd *cobra.Command, args []string) {
 	var (
-		err error
-		in  scanner.Scanner
-		// out generator.Generator
+		connection *sql.DB
+		connector  connectors.Connector
+		structure  []model.EntityDescriptor
+		err        error
 	)
 
 	validateArgs()
@@ -34,22 +36,17 @@ func generate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	// input
-	in = scanner.NewMySQL(username, password, host, port, *dbName)
+	connector = connectors.NewMySQL(username, password, host, port, *dbName)
 
-	err = in.Connect()
-	if err != nil {
+	if connection, err = connector.Connect(); err != nil {
 		log.Fatal(err)
 	}
 
-	structure, err := in.QueryStructure()
-	if err != nil {
+	if structure, err = connector.QueryStructure(connection); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(structure)
-
-	// output
-	// out = generator.NewMySQL(structure)
-	// out.FillTemplates()
+	if err = connector.FillTemplates(connection, structure, *output, *pkgName); err != nil {
+		log.Fatal(err)
+	}
 }

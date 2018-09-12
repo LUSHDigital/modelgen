@@ -1,4 +1,4 @@
-package scanner
+package scanning
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"github.com/nicklanng/modelgen/model"
 )
 
-// mapType figures out which go type should be used, based on the SQL type.
-func mapType(columnType string, nullable string, typeMap map[string]model.SQLType) (string, error) {
+// MapType figures out which go type should be used, based on the SQL type.
+func MapType(columnType string, nullable string, typeMap map[string]model.SQLType) (string, error) {
 	nul := nullable == "YES"
 
 	bits := strings.Split(columnType, "(")
@@ -38,7 +38,7 @@ func mapType(columnType string, nullable string, typeMap map[string]model.SQLTyp
 	return "", fmt.Errorf("unsupported type: %v, please raise an issue with us if you'd like to request support", extractedType)
 }
 
-func needsImport(typ string) (imp string, ok bool) {
+func NeedsImport(typ string) (imp string, ok bool) {
 	switch typ {
 	case "time.Time":
 		return "time", true
@@ -49,8 +49,8 @@ func needsImport(typ string) (imp string, ok bool) {
 	}
 }
 
-// toPascalCase take a snake_case string and converts it to PascalCase
-func toPascalCase(field string) string {
+// ToPascalCase take a snake_case string and converts it to PascalCase
+func ToPascalCase(field string) string {
 	parts := strings.Split(field, "_")
 	for i := 0; i < len(parts); i++ {
 		parts[i] = shouldCapitilize(parts[i])

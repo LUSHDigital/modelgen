@@ -30,3 +30,9 @@ type EntityDescriptor struct {
 	Fields    []Field
 	Imports   map[string]struct{}
 }
+
+type TemplateData struct {
+	Model       EntityDescriptor
+	Receiver    string
+	PackageName string
+}

@@ -1,4 +1,4 @@
-package generation
+package templates
 
 import (
 	"fmt"
@@ -6,26 +6,30 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/packr"
+	"github.com/nicklanng/modelgen/model"
+)
+
+var (
+	box     packr.Box
+	funcMap = template.FuncMap{
+		"insert_fields":       GetInsertFields,
+		"insert_values":       GetInsertValues,
+		"insert_args":         GetInsertArgs,
+		"scan_fields":         GetScanFields,
+		"update_args":         GetUpdateArgs,
+		"update_values":       GetUpdateValues,
+		"upsert_fields":       GetUpsertFields,
+		"upsert_values":       GetUpsertValues,
+		"upsert_on_duplicate": GetUpsertOnDuplicate,
+		"upsert_args":         GetUpsertArgs,
+	}
 )
 
 func init() {
-	packr.NewBox("../templates")
+	box = packr.NewBox("../templates")
 }
 
-var FuncMap = template.FuncMap{
-	"insert_fields":       GetInsertFields,
-	"insert_values":       GetInsertValues,
-	"insert_args":         GetInsertArgs,
-	"scan_fields":         GetScanFields,
-	"update_args":         GetUpdateArgs,
-	"update_values":       GetUpdateValues,
-	"upsert_fields":       GetUpsertFields,
-	"upsert_values":       GetUpsertValues,
-	"upsert_on_duplicate": GetUpsertOnDuplicate,
-	"upsert_args":         GetUpsertArgs,
-}
-
-func GetInsertFields(fields []TmplField) string {
+func GetInsertFields(fields []model.Field) string {
 	var parts []string
 	for _, fl := range fields {
 		if fl.ColumnName == "id" {
@@ -36,7 +40,7 @@ func GetInsertFields(fields []TmplField) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetInsertValues(fields []TmplField) string {
+func GetInsertValues(fields []model.Field) string {
 	var parts []string
 	for _, fl := range fields {
 		switch fl.ColumnName {
@@ -52,7 +56,7 @@ func GetInsertValues(fields []TmplField) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetInsertArgs(m StructTmplData) string {
+func GetInsertArgs(m model.TemplateData) string {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		switch fl.Name {
@@ -64,7 +68,7 @@ func GetInsertArgs(m StructTmplData) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetScanFields(m StructTmplData) template.HTML {
+func GetScanFields(m model.TemplateData) template.HTML {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		parts = append(parts, fmt.Sprintf("&%s.%s", m.Receiver, fl.Name))
@@ -72,7 +76,7 @@ func GetScanFields(m StructTmplData) template.HTML {
 	return template.HTML(strings.Join(parts, ", "))
 }
 
-func GetUpdateArgs(m StructTmplData) template.HTML {
+func GetUpdateArgs(m model.TemplateData) template.HTML {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		switch fl.Name {
@@ -84,7 +88,7 @@ func GetUpdateArgs(m StructTmplData) template.HTML {
 	return template.HTML(strings.Join(parts, ", "))
 }
 
-func GetUpdateValues(m StructTmplData) string {
+func GetUpdateValues(m model.TemplateData) string {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		switch fl.Name {
@@ -99,7 +103,7 @@ func GetUpdateValues(m StructTmplData) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetUpsertFields(fields []TmplField) string {
+func GetUpsertFields(fields []model.Field) string {
 	var parts []string
 	for _, fl := range fields {
 		parts = append(parts, "`"+fl.ColumnName+"`")
@@ -107,7 +111,7 @@ func GetUpsertFields(fields []TmplField) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetUpsertValues(fields []TmplField) string {
+func GetUpsertValues(fields []model.Field) string {
 	var parts []string
 	for _, fl := range fields {
 		switch fl.ColumnName {
@@ -121,7 +125,7 @@ func GetUpsertValues(fields []TmplField) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetUpsertOnDuplicate(m StructTmplData) string {
+func GetUpsertOnDuplicate(m model.TemplateData) string {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		switch fl.Name {
@@ -138,7 +142,7 @@ func GetUpsertOnDuplicate(m StructTmplData) string {
 	return strings.Join(parts, ", ")
 }
 
-func GetUpsertArgs(m StructTmplData) string {
+func GetUpsertArgs(m model.TemplateData) string {
 	var parts []string
 	for _, fl := range m.Model.Fields {
 		switch fl.Name {
