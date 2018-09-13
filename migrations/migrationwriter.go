@@ -32,7 +32,7 @@ func (w *MigrationWriter) WriteMigrations(migrations []model.Migration) error {
 		err      error
 	)
 
-	// archive(w.outputPath)
+	w.archive()
 
 	os.Mkdir(w.outputPath, 0777)
 
@@ -66,4 +66,18 @@ func (w *MigrationWriter) WriteMigrations(migrations []model.Migration) error {
 	}
 
 	return nil
+}
+
+// if the folder you are trying to output the migrations in already exists
+// archive will move the previous migrations into a timestamped archived folder
+// so you can do easy rollbacks
+func (w *MigrationWriter) archive() error {
+	f, err := os.Stat(w.outputPath)
+	if err != nil || !f.IsDir() {
+		return nil
+	}
+	archive := fmt.Sprintf("%s_%s", w.outputPath, time.Now().Format("2006_01_02_15_04_05"))
+	if err := os.Rename(w.outputPath, archive); err != nil {
+		return fmt.Errorf("cannot archive %s folder", w.outputPath)
+	}
 }
