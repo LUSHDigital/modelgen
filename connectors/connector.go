@@ -3,7 +3,7 @@ package connectors
 import (
 	"database/sql"
 
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/model"
 )
 
 type Connector interface {

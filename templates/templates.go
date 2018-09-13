@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/packr"
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/model"
 )
 
 var (

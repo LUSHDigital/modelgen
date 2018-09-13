@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/nicklanng/modelgen/model"
-	"github.com/nicklanng/modelgen/sqlfmt"
-	"github.com/nicklanng/modelgen/templates"
+	"github.com/LUSHDigital/modelgen/model"
+	"github.com/LUSHDigital/modelgen/sqlfmt"
+	"github.com/LUSHDigital/modelgen/templates"
 )
 
 type mySQLExplain struct {

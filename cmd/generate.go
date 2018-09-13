@@ -7,8 +7,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 
-	"github.com/nicklanng/modelgen/connectors"
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/connectors"
+	"github.com/LUSHDigital/modelgen/model"
 )
 
 func init() {

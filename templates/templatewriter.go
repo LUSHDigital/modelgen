@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/model"
 )
 
 type TemplateWriter struct {

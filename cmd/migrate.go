@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"database/sql"
-	"github.com/nicklanng/modelgen/connectors"
-	"github.com/nicklanng/modelgen/migrations"
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/connectors"
+	"github.com/LUSHDigital/modelgen/migrations"
+	"github.com/LUSHDigital/modelgen/model"
 	"github.com/spf13/cobra"
 	"log"
 )

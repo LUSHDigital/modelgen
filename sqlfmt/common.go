@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/model"
 )
 
 // MapType figures out which go type should be used, based on the SQL type.

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nicklanng/modelgen/model"
+	"github.com/LUSHDigital/modelgen/model"
 )
 
 var (

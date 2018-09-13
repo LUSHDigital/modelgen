@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/nicklanng/modelgen/cmd"
+	"github.com/LUSHDigital/modelgen/cmd"
 )
 
 var (
