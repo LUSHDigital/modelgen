@@ -80,4 +80,6 @@ func (w *MigrationWriter) archive() error {
 	if err := os.Rename(w.outputPath, archive); err != nil {
 		return fmt.Errorf("cannot archive %s folder", w.outputPath)
 	}
+
+	return nil
 }
