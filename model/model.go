@@ -7,13 +7,17 @@ type SQLType struct {
 }
 
 var (
-	TypeDate      = SQLType{"time.Time", "NullTime"}
-	TypeString    = SQLType{"string", "NullString"}
-	TypeByteSlice = SQLType{"[]byte", "[]byte"}
-	TypeInt       = SQLType{"int64", "NullInt64"}
-	TypeBool      = SQLType{"bool", "NullBool"}
-	TypeFloat     = SQLType{"float64", "NullFloat64"}
-	TypeJSON      = SQLType{"RawJSON", "RawJSON"}
+	TypeDate        = SQLType{"time.Time", "NullTime"}
+	TypeString      = SQLType{"string", "NullString"}
+	TypeByteSlice   = SQLType{"[]byte", "[]byte"}
+	TypeInt         = SQLType{"int64", "NullInt64"}
+	TypeBool        = SQLType{"bool", "NullBool"}
+	TypeFloat       = SQLType{"float64", "NullFloat64"}
+	TypeJSON        = SQLType{"RawJSON", "RawJSON"}
+	TypeStringArray = SQLType{"StringArray", "StringArray"}
+	TypeIntArray    = SQLType{"IntArray", "IntArray"}
+	TypeFloatArray  = SQLType{"FloatArray", "FloatArray"}
+	TypeBoolArray   = SQLType{"BoolArray", "BoolArray"}
 )
 
 // Field defines a table field template
