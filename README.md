@@ -69,7 +69,7 @@ modelgen migrate -c root:pass@localhost:3306 -d my-db -o migrations
 
 ## Visual Aid:
 
-![visual.svg](./docs/visual.svg)
+![visual.svg](./visual.svg)
 
 ## Credit:
 
