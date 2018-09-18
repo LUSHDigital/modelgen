@@ -1,9 +1,5 @@
 package sqlfmt
 
-import (
-	"strings"
-)
-
 var acronyms = [...]string{
 	"amd",     // Advanced Micro Devices
 	"api",     // application programming interface
@@ -271,27 +267,4 @@ var acronyms = [...]string{
 
 	"x",   // X Window System
 	"xml", // extensible markup language
-}
-
-// ShouldCap defines if the acronym should be capitalized
-func ShouldCap(word string) string {
-	for _, acc := range acronyms {
-		if strings.ToLower(word) == acc {
-			return strings.ToUpper(word)
-		}
-	}
-	return word
-}
-
-// ToPascalCase take a snake_case string and converts it to PascalCase
-func ToPascalCase(field string) string {
-	parts := strings.Split(field, "_")
-	for i := 0; i < len(parts); i++ {
-		parts[i] = ShouldCap(parts[i])
-	}
-	field = strings.Join(parts, "_")
-	field = strings.Replace(field, "_", " ", -1)
-	field = strings.Title(field)
-	field = strings.Replace(field, " ", "", -1)
-	return field
 }
