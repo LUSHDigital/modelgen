@@ -7,16 +7,16 @@ import (
 )
 
 var FuncMap = template.FuncMap{
-	"insert_fields": GetInsertFields,
-	"insert_values": GetInsertValues,
-	"insert_args":   GetInsertArgs,
-	"scan_fields":   GetScanFields,
-	"update_args":   GetUpdateArgs,
-	"update_values": GetUpdateValues,
-	"upsert_fields": GetUpsertFields,
-	"upsert_values": GetUpsertValues,
+	"insert_fields":       GetInsertFields,
+	"insert_values":       GetInsertValues,
+	"insert_args":         GetInsertArgs,
+	"scan_fields":         GetScanFields,
+	"update_args":         GetUpdateArgs,
+	"update_values":       GetUpdateValues,
+	"upsert_fields":       GetUpsertFields,
+	"upsert_values":       GetUpsertValues,
 	"upsert_on_duplicate": GetUpsertOnDuplicate,
-	"upsert_args": GetUpsertArgs,
+	"upsert_args":         GetUpsertArgs,
 }
 
 func GetInsertFields(fields []TmplField) string {
@@ -55,7 +55,10 @@ func GetInsertArgs(m StructTmplData) string {
 		}
 		parts = append(parts, fmt.Sprintf("%s.%s", m.Receiver, fl.Name))
 	}
-	return strings.Join(parts, ", ")
+	if len(parts) > 0 {
+		return ", " + strings.Join(parts, ", ")
+	}
+	return ""
 }
 
 func GetScanFields(m StructTmplData) template.HTML {
@@ -75,7 +78,10 @@ func GetUpdateArgs(m StructTmplData) template.HTML {
 		}
 		parts = append(parts, fmt.Sprintf("%s.%s", m.Receiver, fl.Name))
 	}
-	return template.HTML(strings.Join(parts, ", "))
+	if len(parts) > 0 {
+		return template.HTML(strings.Join(parts, ", ") + ", ")
+	}
+	return ""
 }
 
 func GetUpdateValues(m StructTmplData) string {
