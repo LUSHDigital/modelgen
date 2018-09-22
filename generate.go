@@ -120,6 +120,9 @@ func GetOrderFromComment(comment string) (order int) {
 	return
 }
 
+// backtick is needed is the user picked a table name
+// which conflicts with a builtin keyword, example "order"
+func backtick(s string) string { return "`" + s + "`" }
 func ToStructs(tables map[string]string) []tmpl.TmplStruct {
 	var explained = make(map[string][]sqltypes.Explain)
 	for table := range tables {
