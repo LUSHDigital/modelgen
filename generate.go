@@ -104,6 +104,8 @@ func getTables() (tables map[string]string) {
 	return tables
 }
 
+// GetOrderFromComment reads the modelgen:1 type comments and returns
+// the integer part on the right
 func GetOrderFromComment(comment string) (order int) {
 	if !strings.HasPrefix(comment, "modelgen") {
 		return
@@ -124,6 +126,8 @@ func GetOrderFromComment(comment string) (order int) {
 // which conflicts with a builtin keyword, example "order"
 func backtick(s string) string { return "`" + s + "`" }
 
+// ToStructs takes an 'EXPLAIN' statement and transforms it's output
+// into structs.
 func ToStructs(tables map[string]string) []tmpl.TmplStruct {
 	var explained = make(map[string][]sqltypes.Explain)
 	for table := range tables {
