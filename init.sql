@@ -3,9 +3,12 @@ CREATE DATABASE `modelgen_tests`;
 USE `modelgen_tests`;
 
 -- order is a builtin, tests should pass despite this
-DROP TABLE IF EXISTS `order`
+DROP TABLE IF EXISTS `order`;
 
+-- only one field should not break despite the special cases.
 CREATE TABLE `order` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `common_cases`;
