@@ -1,9 +1,9 @@
-OLD_SHA:=$(shell shasum -a 256 main-packr.go | cut -d' ' -f1)
-NEW_SHA= $(shell shasum -a 256 main-packr.go | cut -d' ' -f1)
+OLD_SHA:=$(shell shasum -a 256 a_main-packr.go | cut -d' ' -f1)
+NEW_SHA= $(shell shasum -a 256 a_main-packr.go | cut -d' ' -f1)
 
 all: test install post
 test:
-	go test -v ./...
+	go test -v -count 1 ./...
 	go build
 	docker-compose --no-ansi -f docker-compose.yml up -d --force-recreate
 	sleep 5
@@ -12,7 +12,7 @@ test:
 	rm -rf modelgen
 	rm -rf ./generated_models
 test-ci:
-	go test -v ./...
+	go test -v -count 1 ./...
 	go build
 	docker-compose --no-ansi -f docker-compose.yml up -d --force-recreate
 	sleep 30 # annoying, but for ci.
@@ -26,6 +26,6 @@ install:
 	packr && go install
 post:
 	@if [ "$(NEW_SHA)" != "$(OLD_SHA)" ]; then\
-        echo "sha comparison failed on main-packr.go";\
+        echo "sha comparison failed on a_main-packr.go";\
 		exit 1;\
     fi
