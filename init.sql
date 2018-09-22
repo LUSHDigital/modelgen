@@ -2,6 +2,12 @@ CREATE DATABASE `modelgen_tests`;
 
 USE `modelgen_tests`;
 
+-- order is a builtin, tests should pass despite this
+DROP TABLE IF EXISTS `order`
+
+CREATE TABLE `order` (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `common_cases`;
 
 CREATE TABLE `common_cases` (
