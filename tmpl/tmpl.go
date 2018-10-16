@@ -17,6 +17,11 @@ var FuncMap = template.FuncMap{
 	"upsert_values":       GetUpsertValues,
 	"upsert_on_duplicate": GetUpsertOnDuplicate,
 	"upsert_args":         GetUpsertArgs,
+	"backtick":            Backtick,
+}
+
+func Backtick(s string) string {
+	return "`" + s + "`"
 }
 
 func GetInsertFields(fields []TmplField) string {

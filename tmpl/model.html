@@ -28,7 +28,7 @@ limit int
 
 // Insert a new {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Insert(qu Queryer) (lastInsertID int64, err error) {
-    const stmt = "INSERT INTO {{.Model.TableName}} ({{.Model.Fields | insert_fields}}) VALUES ({{.Model.Fields | insert_values}})"
+    const stmt = "INSERT INTO {{.Model.TableName|backtick}} ({{.Model.Fields | insert_fields}}) VALUES ({{.Model.Fields | insert_values}})"
     res, err := qu.Exec(stmt{{ . | insert_args }})
     if err != nil {
         return 0, err
@@ -38,7 +38,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Insert(qu Queryer) (lastInsertID int64, er
 
 // Update an existing {{.Model.Name}} row in the {{.Model.TableName}} table.
 func ({{.Receiver}} *{{.Model.Name}}) Update(qu Queryer, id int64) (int64, error) {
-    const stmt = "UPDATE {{.Model.TableName}} SET {{ . | update_values }} WHERE id = ?"
+    const stmt = "UPDATE {{.Model.TableName|backtick}} SET {{ . | update_values }} WHERE id = ?"
     result, err := qu.Exec(stmt, {{ . | update_args }} id)
     if err != nil {
         return 0, err
@@ -49,7 +49,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Update(qu Queryer, id int64) (int64, error
 // Upsert inserts a new {{.Model.Name}} row in the {{.Model.TableName}} table
 // if the unique constraints are not found, otherwise it updates it.
 func ({{.Receiver}} *{{.Model.Name}}) Upsert(qu Queryer) (lastInsertID int64, err error) {
-    const stmt = "INSERT INTO {{.Model.TableName}} ({{.Model.Fields | upsert_fields}}) VALUES ({{.Model.Fields | upsert_values}}) ON DUPLICATE KEY UPDATE {{ . | upsert_on_duplicate }}"
+    const stmt = "INSERT INTO {{.Model.TableName|backtick}} ({{.Model.Fields | upsert_fields}}) VALUES ({{.Model.Fields | upsert_values}}) ON DUPLICATE KEY UPDATE {{ . | upsert_on_duplicate }}"
     res, err := qu.Exec(stmt, {{ . | upsert_args }})
     if err != nil {
         return 0, err
@@ -59,14 +59,14 @@ func ({{.Receiver}} *{{.Model.Name}}) Upsert(qu Queryer) (lastInsertID int64, er
 
 // Find an existing {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Find(qu Queryer, id int64) error {
-    const stmt = "SELECT * FROM {{.Model.TableName}} WHERE id = ?"
+    const stmt = "SELECT * FROM {{.Model.TableName|backtick}} WHERE id = ?"
     row := qu.QueryRow(stmt, id)
     return row.Scan({{ . | scan_fields}})
 }
 
 // Load all, or a subset of {{.Model.Name}} rows from the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, err error) {
-    stmt := "SELECT * FROM {{.Model.TableName}}"
+    stmt := "SELECT * FROM {{.Model.TableName|backtick}}"
 
     if {{.Receiver}}.limit == 0 && {{.Receiver}}.offset > 0 {
         return set, fmt.Errorf("cannot query with offset but no limit")
@@ -100,7 +100,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, e
 
 // Delete an existing {{.Model.Name}} row from the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Delete(qu Queryer, id int64) (rowsAffected int64, err error) {
-    const stmt = "DELETE FROM {{.Model.TableName}} WHERE id = ?"
+    const stmt = "DELETE FROM {{.Model.TableName|backtick}} WHERE id = ?"
     result, err := qu.Exec(stmt, id)
 	if err != nil {
 		return
@@ -111,7 +111,7 @@ func ({{.Receiver}} *{{.Model.Name}}) Delete(qu Queryer, id int64) (rowsAffected
 
 // Count the number of rows from the {{.Model.TableName}} table
 func({{.Receiver}} *{{.Model.Name}}) Count(qu Queryer) (count int64, err error) {
-    const stmt = "SELECT COUNT(*) FROM {{.Model.TableName}}"
+    const stmt = "SELECT COUNT(*) FROM {{.Model.TableName|backtick}}"
     row := qu.QueryRow(stmt)
     if err = row.Scan(&count); err != nil {
         return
@@ -123,7 +123,7 @@ func({{.Receiver}} *{{.Model.Name}}) Count(qu Queryer) (count int64, err error) 
 // An error will only be returned if a SQL related failure happens.
 // In all other cases, a bool and nil will return.
 func({{.Receiver}} *{{.Model.Name}}) Exists(qu Queryer, id int64) (exists bool, err error) {
-    const stmt = "SELECT EXISTS(SELECT 1 FROM {{.Model.TableName}} WHERE id = ? LIMIT 1) AS `exists`"
+    const stmt = "SELECT EXISTS(SELECT 1 FROM {{.Model.TableName|backtick}} WHERE id = ? LIMIT 1) AS `exists`"
     var count int
     row := qu.QueryRow(stmt, id)
     if err = row.Scan(&count); err != nil {
@@ -149,4 +149,3 @@ func ({{.Receiver}} *{{.Model.Name}}) SetOffset(offset int) *{{.Model.Name}} {
 return {{.Receiver}}
 }
 {{end}}
-
