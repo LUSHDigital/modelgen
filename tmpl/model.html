@@ -11,10 +11,14 @@ package {{ .PackageName }}
 // and create the methods there to avoid overwriting your code with the generated one.
 
 import (
-"fmt"
-    {{ range $k, $v:= .Model.Imports }}
+    "fmt"
+    {{- range $k, $v:= .Model.Imports }}
     "{{$k}}"
     {{- end }}
+)
+
+const (
+    select{{.Model.Name}} = "{{ .Model.Fields | select_fields}}"
 )
 
 // {{.Model.Name}} represents a row in the {{.Model.TableName}} table
@@ -22,8 +26,8 @@ type {{.Model.Name}} struct {
     {{ range $k, $v:= .Model.Fields }}
         {{ $v.Name }} {{ $v.Type }} `json:"{{$v.ColumnName}}"`
     {{- end }}
-offset int
-limit int
+    offset int
+    limit int
 }
 
 // Insert a new {{.Model.Name}} row in the {{.Model.TableName}} table
@@ -59,14 +63,14 @@ func ({{.Receiver}} *{{.Model.Name}}) Upsert(qu Queryer) (lastInsertID int64, er
 
 // Find an existing {{.Model.Name}} row in the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Find(qu Queryer, id int64) error {
-    const stmt = "SELECT * FROM {{.Model.TableName|backtick}} WHERE id = ?"
+    const stmt = "SELECT " + select{{.Model.Name}} + " FROM {{.Model.TableName|backtick}} WHERE id = ?"
     row := qu.QueryRow(stmt, id)
     return row.Scan({{ . | scan_fields}})
 }
 
 // Load all, or a subset of {{.Model.Name}} rows from the {{.Model.TableName}} table
 func ({{.Receiver}} *{{.Model.Name}}) Load(qu Queryer) (set []{{.Model.Name}}, err error) {
-    stmt := "SELECT * FROM {{.Model.TableName|backtick}}"
+    stmt := "SELECT " + select{{.Model.Name}} + " FROM {{.Model.TableName|backtick}}"
 
     if {{.Receiver}}.limit == 0 && {{.Receiver}}.offset > 0 {
         return set, fmt.Errorf("cannot query with offset but no limit")

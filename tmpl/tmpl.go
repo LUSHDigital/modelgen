@@ -7,6 +7,7 @@ import (
 )
 
 var FuncMap = template.FuncMap{
+	"select_fields":       GetSelectFields,
 	"insert_fields":       GetInsertFields,
 	"insert_values":       GetInsertValues,
 	"insert_args":         GetInsertArgs,
@@ -100,6 +101,14 @@ func GetUpdateValues(m StructTmplData) string {
 		default:
 			parts = append(parts, fmt.Sprintf("`%s`=?", fl.ColumnName))
 		}
+	}
+	return strings.Join(parts, ", ")
+}
+
+func GetSelectFields(fields []TmplField) string {
+	var parts []string
+	for _, fl := range fields {
+		parts = append(parts, "`"+fl.ColumnName+"`")
 	}
 	return strings.Join(parts, ", ")
 }
