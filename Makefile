@@ -3,6 +3,7 @@ NEW_SHA= $(shell shasum -a 256 a_main-packr.go | cut -d' ' -f1)
 
 all: test install post
 test:
+	packr
 	go test -v -count 1 ./...
 	go build
 	docker-compose --no-ansi -f docker-compose.yml up -d --force-recreate
